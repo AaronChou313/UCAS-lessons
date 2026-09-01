@@ -26,11 +26,11 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .filters{display:grid;grid-template-columns:repeat(6,minmax(135px,1fr));gap:10px;margin-top:12px}.field label{display:block;color:#8490a3;font-size:11px;margin:0 0 5px 3px}.field select{width:100%;height:39px;border:1px solid var(--line);border-radius:10px;background:white;color:#38445a;padding:0 30px 0 10px;outline:none;text-overflow:ellipsis}.field select:focus{border-color:#a5b6e9}
 .result-head{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:19px 3px 10px}.result-title{font-weight:700;font-size:16px}.result-title span{color:var(--blue)}.result-sub{color:var(--muted);font-size:12px;margin-top:3px}.head-actions{display:flex;gap:8px;align-items:center}.toggle{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 11px;cursor:pointer;color:#59667c}.toggle.active{border-color:#a9b8e7;background:var(--blueSoft);color:#3152aa}
 .viewseg{display:flex;background:#eef1f7;border-radius:11px;padding:4px;gap:3px}.viewseg button{border:0;background:transparent;color:#667188;border-radius:8px;padding:8px 15px;cursor:pointer;font-weight:650}.viewseg button.active{background:white;color:#264688;box-shadow:0 2px 8px rgba(30,51,88,.09)}
-.table-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 5px 20px rgba(28,45,77,.035)}.table-scroll{overflow:auto;max-height:calc(100vh - 270px)}table{width:100%;border-collapse:separate;border-spacing:0;min-width:1820px}thead th{position:sticky;top:0;z-index:4;background:#f7f9fc;color:#6c788d;text-align:left;font-size:11px;font-weight:700;letter-spacing:.02em;padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:default}thead th.sortable{cursor:pointer}thead th.sortable:hover{color:#3159b4}tbody td{padding:11px 10px;border-bottom:1px solid #edf1f6;vertical-align:middle;color:#445067}tbody tr:hover{background:#fafcff}tbody tr:last-child td{border-bottom:0}
-.course-name{font-weight:690;color:#1f2c43;line-height:1.4}.course-name small{display:block;color:#98a2b3;font-weight:400;font-size:11px;margin-top:2px}.name-link{cursor:pointer}.name-link:hover{color:var(--blue);text-decoration:underline}
-.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:#8a95a8;white-space:nowrap}.college{max-width:190px}.subj{max-width:180px}.nowrap{white-space:nowrap}.num{text-align:right;font-variant-numeric:tabular-nums}
+.table-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 5px 20px rgba(28,45,77,.035)}.table-scroll{overflow:auto;max-height:calc(100vh - 270px)}table{width:100%;border-collapse:separate;border-spacing:0;min-width:1180px;table-layout:fixed}thead th{position:sticky;top:0;z-index:4;background:#f7f9fc;color:#6c788d;text-align:left;font-size:11px;font-weight:700;letter-spacing:.02em;padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:default}thead th.sortable{cursor:pointer}thead th.sortable:hover{color:#3159b4}tbody td{padding:11px 10px;border-bottom:1px solid #edf1f6;vertical-align:middle;color:#445067}tbody tr:hover{background:#fafcff}tbody tr:last-child td{border-bottom:0}
+.course-name{font-weight:690;color:#1f2c43;line-height:1.4;min-width:0}.course-name small{display:block;color:#98a2b3;font-weight:400;font-size:11px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.name-link{cursor:pointer;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.name-link:hover{color:var(--blue);text-decoration:underline}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:#8a95a8;white-space:nowrap}.college{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.subj{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nowrap{white-space:nowrap}.num{text-align:right;font-variant-numeric:tabular-nums}
 .slot-chip{display:inline-block;background:var(--blueSoft);color:#3152aa;border-radius:7px;padding:2px 7px;font-size:11px;margin:1px 3px 1px 0;white-space:nowrap;font-weight:600}.slot-chip .room{margin-left:4px;padding:0 4px;border-radius:5px;background:#fff5de;color:#8a6c2a;font-weight:600}.slot-chip.multi{border-left:3px solid var(--blue)}
-.teacher{color:#4b5870;font-size:12.5px}.teacher small{display:block;color:#9aa3b4;font-size:11px}.method{font-size:12px;color:#4b5870;white-space:nowrap}
+.teacher{color:#4b5870;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.teacher small{display:block;color:#9aa3b4;font-size:11px}.method{font-size:12px;color:#4b5870;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seat{font-weight:700;font-variant-numeric:tabular-nums}.seat.full{color:#c0392b}.seat.low{color:#d97b29}.seat.ok{color:#198b72}.seat-text{font-size:10.5px;color:#9aa3b4;display:block}
 .star{border:0;background:transparent;font-size:19px;line-height:1;cursor:pointer;color:#c3cad5;padding:2px 5px}.star.on{color:#e0a822}
 .badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:650;white-space:nowrap}.b-core{background:#edf2ff;color:#4361bd}.b-pro{background:#e9f7f2;color:#237862}.b-public{background:#fff5de;color:#956a14}.b-seminar{background:#f5ecff;color:#7950a5}.b-lab{background:#eaf7ff;color:#26739b}.b-other{background:#f1f3f7;color:#667187}.semester{font-weight:700}.autumn{color:#aa6228}.spring{color:#2f7a62}
@@ -178,21 +178,21 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
     <div class="table-scroll">
       <table>
         <thead><tr>
-          <th style="width:42px"></th>
+          <th style="width:38px"></th>
           <th class="sortable" data-sort="name">课程名称 ↕</th>
           <th class="sortable num" data-sort="credits">学分 ↕</th>
+          <th class="sortable" data-sort="teacher">教师 ↕</th>
+          <th class="sortable" data-sort="exam">考试方式 ↕</th>
+          <th class="sortable" data-sort="teach">授课方式 ↕</th>
+          <th>上课时间</th>
+          <th class="sortable" data-sort="category">课程类别 ↕</th>
+          <th class="sortable" data-sort="campus">校区 ↕</th>
+          <th class="sortable" data-sort="semester">学期 ↕</th>
+          <th class="sortable num" data-sort="seat">余量 ↕</th>
+          <th class="sortable num" data-sort="hours">学时 ↕</th>
           <th class="sortable" data-sort="college">开课院系 ↕</th>
           <th class="sortable" data-sort="first">一级学科 ↕</th>
           <th class="sortable" data-sort="second">二级学科 / 专业 ↕</th>
-          <th class="sortable" data-sort="category">课程类别 ↕</th>
-          <th class="sortable" data-sort="semester">学期 ↕</th>
-          <th class="sortable" data-sort="campus">校区 ↕</th>
-          <th>上课时间</th>
-          <th>教师</th>
-          <th class="sortable" data-sort="teach">授课方式 ↕</th>
-          <th class="sortable" data-sort="exam">考试方式 ↕</th>
-          <th class="sortable num" data-sort="hours">学时 ↕</th>
-          <th class="sortable num" data-sort="seat">余量 ↕</th>
           <th>课程编码</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
@@ -306,6 +306,7 @@ function sortedData(){
   arr.sort((a,b)=>{
     if(f==='hours'||f==='credits')return (a[f]-b[f])*d;
     if(f==='seat'){const x=seatOf(a),y=seatOf(b); if(x==null&&y==null)return 0; if(x==null)return 1; if(y==null)return -1; if(x===y)return 0; return (x-y)*d}
+    if(f==='teacher')return collator.compare(teacherText(a),teacherText(b))*d;
     return collator.compare(String(a[f]),String(b[f]))*d;
   });
   return arr;
@@ -325,12 +326,14 @@ function renderList(){
     const en=esc(c.en||'');
     return `<tr>
     <td><button class="star ${selected.has(c.code)?'on':''}" data-code="${esc(c.code)}" title="${selected.has(c.code)?'移出已选':'加入已选'}">★</button></td>
-    <td><div class="course-name"><span class="name-link" data-detail="${c.id}">${esc(c.name)}</span>${en?`<small>${en}</small>`:''}</div></td>
-    <td class="num"><b>${fmtNum(c.credits)}</b></td><td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td>
-    <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="nowrap semester ${c.semester==='秋季'?'autumn':'spring'}">${esc(c.semester)}</td><td class="nowrap">${esc(c.campus)}</td>
-    <td style="min-width:150px">${slotChips(c)}</td><td class="teacher">${teacherText(c)?esc(teacherText(c)):'<span class="seat-text">—</span>'}</td>
-    <td class="method">${esc(c.teach||'—')}</td><td class="method">${esc(c.exam||'—')}</td>
-    <td class="num">${fmtNum(c.hours)}</td><td class="num">${seatHTML(c)}</td><td class="code">${esc(c.code)}</td></tr>`;
+    <td><div class="course-name"><span class="name-link" data-detail="${c.id}" title="${esc(c.name)}">${esc(c.name)}</span>${en?`<small>${en}</small>`:''}</div></td>
+    <td class="num"><b>${fmtNum(c.credits)}</b></td>
+    <td class="teacher">${teacherText(c)?esc(teacherText(c)):'<span class="seat-text">—</span>'}</td>
+    <td class="method">${esc(c.exam||'—')}</td><td class="method">${esc(c.teach||'—')}</td>
+    <td style="min-width:170px">${slotChips(c)}</td>
+    <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="nowrap">${esc(c.campus)}</td><td class="nowrap semester ${c.semester==='秋季'?'autumn':'spring'}">${esc(c.semester)}</td>
+    <td class="num">${seatHTML(c)}</td><td class="num">${fmtNum(c.hours)}</td>
+    <td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td><td class="code">${esc(c.code)}</td></tr>`;
   }).join('');
   $('empty').hidden=total!==0; document.querySelector('#listView table').style.display=total?'table':'none';
   $('rangeText').textContent=total?`显示 ${start+1}–${end} / ${total}`:'0 条结果'; $('pageNow').textContent=`${state.page} / ${pages}`; $('prev').disabled=state.page<=1; $('next').disabled=state.page>=pages;
