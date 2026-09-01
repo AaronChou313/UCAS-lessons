@@ -423,7 +423,7 @@ function dayColHTML(day,withSlots,week,confSet,colorIdx){
     const color=colorIdx[e.c.code]||'#8893a8';
     const top=(e.s.start-1)*ROW_H, h=(e.s.end-e.s.start+1)*ROW_H-3;
     blocks+=`<div class="slot-block${active?'':' inactive'}${clash?' conflict':''}" data-detail="${e.c.id}"
-      style="top:${top}px;height:${h}px;left:calc(${e.track}*${trackW}% + 1px);width:calc(${trackW}% - 3px);background:${color}${active?'26':''};color:${active?shade(color):'#9aa3b4'};border-color:${clash?'':color+'99'}"
+      style="top:${top}px;height:${h}px;left:calc(${e.track}*${trackW}% + 1px);width:calc(${trackW}% - 3px);background:${color}${active?'4d':''};color:${active?ink(color):'#9aa3b4'};border-color:${clash?'':color+'99'}"
       title="${esc(e.c.name)} · ${DAY_CN[e.s.day]}${e.s.p} · ${e.s.w}${e.c.room?' · '+esc(e.c.room):''}">
       <div class="sb-name">${esc(e.c.name)}</div>
       <div class="sb-time">${e.s.p}节 · ${e.s.w}</div>
@@ -432,9 +432,11 @@ function dayColHTML(day,withSlots,week,confSet,colorIdx){
   }
   return`<div class="day-col ${day>=6?'sat':''}" data-day="${day}">${blocks}</div>`;
 }
-function shade(hex){
-  const n=parseInt(hex.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255;
-  return (0.2126*r+0.7152*g+0.0722*b)>140?'#26304a':'#ffffff';
+function ink(hex){
+  // 课程色加深后作为浅色块上的文字色，保证对比度
+  const n=parseInt(hex.slice(1),16);
+  const r=Math.round(((n>>16)&255)*0.45),g=Math.round(((n>>8)&255)*0.45),b=Math.round((n&255)*0.45);
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
 /* ================== 详情抽屉 ================== */
