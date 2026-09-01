@@ -30,7 +30,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .course-name{font-weight:690;color:#1f2c43;line-height:1.4}.course-name small{display:block;color:#98a2b3;font-weight:400;font-size:11px;margin-top:2px;line-height:1.45}.name-link{cursor:pointer}.name-link:hover{color:var(--blue);text-decoration:underline}
 .code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:#8a95a8;white-space:nowrap}.college{white-space:nowrap}.subj{white-space:nowrap}.nowrap{white-space:nowrap}.num{text-align:right;font-variant-numeric:tabular-nums}
 .slot-chip{display:inline-block;background:var(--blueSoft);color:#3152aa;border-radius:7px;padding:2px 7px;font-size:11px;margin:1px 3px 1px 0;white-space:nowrap;font-weight:600}.slot-chip .room{margin-left:4px;padding:0 4px;border-radius:5px;background:#fff5de;color:#8a6c2a;font-weight:600}.slot-chip.multi{border-left:3px solid var(--blue)}
-.teacher{color:#4b5870;font-size:12.5px;white-space:nowrap}.teacher small{display:block;color:#9aa3b4;font-size:11px}.method{font-size:12px;color:#4b5870;white-space:nowrap}
+.teacher{color:#4b5870;font-size:12.5px;white-space:nowrap}.teacher small{display:block;color:#9aa3b4;font-size:11px}.method{font-size:12px;color:#4b5870;white-space:nowrap}.level{font-size:12px;color:#5a6780;white-space:nowrap}
 .seat{font-weight:700;font-variant-numeric:tabular-nums}.seat.full{color:#c0392b}.seat.low{color:#d97b29}.seat.ok{color:#198b72}.seat-text{font-size:10.5px;color:#9aa3b4;display:block}
 .star{border:0;background:transparent;font-size:19px;line-height:1;cursor:pointer;color:#c3cad5;padding:2px 5px}.star.on{color:#e0a822}
 .badge{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:650;white-space:nowrap}.b-core{background:#edf2ff;color:#4361bd}.b-pro{background:#e9f7f2;color:#237862}.b-public{background:#fff5de;color:#956a14}.b-seminar{background:#f5ecff;color:#7950a5}.b-lab{background:#eaf7ff;color:#26739b}.b-other{background:#f1f3f7;color:#667187}.semester{font-weight:700}.autumn{color:#aa6228}.spring{color:#2f7a62}
@@ -187,6 +187,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
           <th class="sortable" data-sort="teach">授课方式 ↕</th>
           <th>上课时间</th>
           <th class="sortable" data-sort="category">课程类别 ↕</th>
+          <th class="sortable" data-sort="level">培养层次 ↕</th>
           <th class="sortable" data-sort="campus">校区 ↕</th>
           <th class="sortable" data-sort="semester">学期 ↕</th>
           <th class="sortable num" data-sort="seat">余量 ↕</th>
@@ -332,7 +333,7 @@ function renderList(){
     <td class="teacher">${teacherText(c)?esc(teacherText(c)):'<span class="seat-text">—</span>'}</td>
     <td class="method">${esc(c.exam||'—')}</td><td class="method">${esc(c.teach||'—')}</td>
     <td style="min-width:170px">${slotChips(c)}</td>
-    <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="nowrap">${esc(c.campus)}</td><td class="nowrap semester ${c.semester==='秋季'?'autumn':'spring'}">${esc(c.semester)}</td>
+    <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="level">${esc(c.level||'—')}</td><td class="nowrap">${esc(c.campus)}</td><td class="nowrap semester ${c.semester==='秋季'?'autumn':'spring'}">${esc(c.semester)}</td>
     <td class="num">${seatHTML(c)}</td><td class="num">${fmtNum(c.hours)}</td>
     <td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td><td class="code">${esc(c.code)}</td></tr>`;
   }).join('');
