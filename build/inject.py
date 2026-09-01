@@ -19,6 +19,6 @@ out = re.sub(r'<div class="stat"><strong>\d+</strong><span>开课院系</span>',
 out = re.sub(r'<div class="stat"><strong>\d+</strong><span>一级学科分类</span>', f'<div class="stat"><strong>{n_first}</strong><span>一级学科分类</span>', out)
 out = re.sub(r'<div class="stat"><strong>\d+</strong><span>课程类别</span>', f'<div class="stat"><strong>{n_cat}</strong><span>课程类别</span>', out)
 
-dest = sys.argv[1] if len(sys.argv) > 1 else '../UCAS_2026-2027选课浏览器.html'
+dest = sys.argv[1] if len(sys.argv) > 1 else '../index.html'
 open(dest, 'w', encoding='utf-8').write(out)
 print(f'OK: {n_total} courses, {n_college} colleges, {n_first} firsts, {n_cat} categories -> {dest} ({len(out)/1024:.0f} KB)')

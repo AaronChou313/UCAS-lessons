@@ -21,7 +21,15 @@
 
 ## 使用
 
-直接用浏览器打开 `UCAS_2026-2027选课浏览器.html` 即可。
+直接用浏览器打开 `index.html` 即可。
+
+## 部署到 GitHub Pages
+
+1. 将代码推送到 GitHub 仓库（本项目对应 `AaronChou313/UCAS-lessons`）
+2. 进入仓库 **Settings → Pages**，在 "Build and deployment" 中选择 **Source: Deploy from a branch**，分支选 `master`（或 `main`），目录选 `/ (root)`
+3. 保存后站点即可通过 `https://<用户名>.github.io/<仓库名>/` 访问（本项目为 `https://AaronChou313.github.io/UCAS-lessons/`）
+
+`index.html` 即站点入口，无需构建步骤。
 
 ## 更新数据（重新生成页面）
 
@@ -34,7 +42,7 @@ cd build && ./build.sh
 生成流程：
 
 1. `build_data.py`：解析秋季课表 Excel，并读取旧页面内嵌的春季数据，合并为 `courses_merged.json`
-2. `inject.py`：将数据注入 `template.html`，输出最终页面 `UCAS_2026-2027选课浏览器.html`
+2. `inject.py`：将数据注入 `template.html`，输出最终页面 `index.html`
 
 ## 说明
 
@@ -46,7 +54,7 @@ cd build && ./build.sh
 ## 文件结构
 
 ```
-UCAS_2026-2027选课浏览器.html       生成后的选课页面（直接打开）
+index.html                          生成后的选课页面（GitHub Pages 站点入口 / 直接打开）
 2026年秋季学期课表.xlsx               秋季排课数据源
 2026-2027学年秋季和春季开课计划表0828.xlsx   开课计划数据源（春季）
 build/

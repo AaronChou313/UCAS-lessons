@@ -4,7 +4,7 @@ import openpyxl, json, re
 from collections import Counter, defaultdict
 
 NEW_FILE = '../2026年秋季学期课表.xlsx'
-HTML_FILE = '../UCAS_2026-2027选课浏览器.html'
+HTML_FILE = '../index.html'
 OUT = 'courses_merged.json'
 
 # ---------- 1. load existing COURSES from HTML ----------
