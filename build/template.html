@@ -23,7 +23,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .filter-top{display:grid;grid-template-columns:minmax(300px,1.65fr) 1fr auto;gap:12px;align-items:center}.search{position:relative}.search input{width:100%;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:0 14px 0 40px;outline:none}.search input:focus{border-color:#9db0ec;box-shadow:0 0 0 3px #eef2ff}.search svg{position:absolute;width:17px;left:14px;top:12px;stroke:#8a96aa}
 .segments{display:flex;background:#f0f3f8;border-radius:11px;padding:4px;gap:3px}.segments button{border:0;background:transparent;color:#667188;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:650;flex:1}.segments button.active{background:white;color:#264688;box-shadow:0 2px 8px rgba(30,51,88,.09)}
 .clear{border:1px solid var(--line);background:white;height:42px;padding:0 15px;border-radius:11px;cursor:pointer;color:#5f6c82}.clear:hover{background:#f7f9fc}
-.filters{display:grid;grid-template-columns:repeat(6,minmax(135px,1fr));gap:10px;margin-top:12px}.field label{display:block;color:#8490a3;font-size:11px;margin:0 0 5px 3px}.field select{width:100%;height:39px;border:1px solid var(--line);border-radius:10px;background:white;color:#38445a;padding:0 30px 0 10px;outline:none;text-overflow:ellipsis}.field select:focus{border-color:#a5b6e9}
+.filters{display:grid;grid-template-columns:repeat(7,minmax(128px,1fr));gap:10px;margin-top:12px}.field label{display:block;color:#8490a3;font-size:11px;margin:0 0 5px 3px}.field select{width:100%;height:39px;border:1px solid var(--line);border-radius:10px;background:white;color:#38445a;padding:0 30px 0 10px;outline:none;text-overflow:ellipsis}.field select:focus{border-color:#a5b6e9}
 .result-head{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:19px 3px 10px}.result-title{font-weight:700;font-size:16px}.result-title span{color:var(--blue)}.result-sub{color:var(--muted);font-size:12px;margin-top:3px}.head-actions{display:flex;gap:8px;align-items:center}.toggle{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 11px;cursor:pointer;color:#59667c}.toggle.active{border-color:#a9b8e7;background:var(--blueSoft);color:#3152aa}
 .viewseg{display:flex;background:#eef1f7;border-radius:11px;padding:4px;gap:3px}.viewseg button{border:0;background:transparent;color:#667188;border-radius:8px;padding:8px 15px;cursor:pointer;font-weight:650}.viewseg button.active{background:white;color:#264688;box-shadow:0 2px 8px rgba(30,51,88,.09)}
 .table-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 5px 20px rgba(28,45,77,.035)}.table-scroll{overflow:auto;max-height:calc(100vh - 270px)}table{width:100%;border-collapse:separate;border-spacing:0;min-width:1200px}thead th{position:sticky;top:0;z-index:4;background:#f7f9fc;color:#6c788d;text-align:left;font-size:11px;font-weight:700;letter-spacing:.02em;padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:default}thead th.sortable{cursor:pointer}thead th.sortable:hover{color:#3159b4}tbody td{padding:11px 10px;border-bottom:1px solid #edf1f6;vertical-align:middle;color:#445067}tbody tr:hover{background:#fafcff}tbody tr:last-child td{border-bottom:0}
@@ -161,6 +161,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
       <div class="field"><label for="category">课程类别</label><select id="category"></select></div>
       <div class="field"><label for="campus">开课校区</label><select id="campus"></select></div>
       <div class="field"><label for="credits">学分</label><select id="credits"></select></div>
+      <div class="field"><label for="exam">考试方式</label><select id="exam"></select></div>
     </div>
   </section>
 
@@ -255,11 +256,11 @@ const DAY_CN=['','周一','周二','周三','周四','周五','周六','周日']
 const PERIOD_START={1:'08:00',2:'08:55',3:'09:50',4:'10:45',5:'13:30',6:'14:25',7:'15:20',8:'16:15',9:'17:10',10:'18:30',11:'19:25',12:'20:20',13:'21:15'};
 const COLORS=['#3f66cf','#14856e','#c97b22','#7a4fb3','#c0392b','#0f8a9d','#8a6d1c','#4e8a3a','#8b4d7a','#b5552a','#3f7d8f','#6d7f2e'];
 
-const state={search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',week:0,showNoSched:true};
+const state={search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',week:0,showNoSched:true};
 let selected=new Set(JSON.parse(localStorage.getItem('ucas-course-selected-codes')||'[]').map(String));
 const collator=new Intl.Collator('zh-CN',{numeric:true,sensitivity:'base'});
-const fields=['college','first','second','category','campus','credits'];
-const labels={college:'全部院系',first:'全部一级学科',second:'全部二级学科',category:'全部课程类别',campus:'全部校区',credits:'全部学分'};
+const fields=['college','first','second','category','campus','credits','exam'];
+const labels={college:'全部院系',first:'全部一级学科',second:'全部二级学科',category:'全部课程类别',campus:'全部校区',credits:'全部学分',exam:'全部考试方式'};
 
 function norm(v){return (v??'').toString().trim().toLowerCase()}
 function teacherText(c){return (c.main||c.chief||c.convener||'').trim()||(c.ta||'')}
@@ -271,7 +272,7 @@ function match(c,exclude){
   if(state.onlySelected && !selected.has(c.code)) return false;
   if(state.search){const q=norm(state.search); if(!searchText(c).includes(q))return false}
   if(exclude!=='semester' && state.semester && c.semester!==state.semester)return false;
-  for(const f of ['college','first','second','category','campus']) if(exclude!==f && state[f] && c[f]!==state[f])return false;
+  for(const f of ['college','first','second','category','campus','exam']) if(exclude!==f && state[f] && c[f]!==state[f])return false;
   if(exclude!=='credits' && state.credits && String(c.credits)!==state.credits)return false;
   return true;
 }
@@ -279,7 +280,7 @@ function filterData(exclude){return COURSES.filter(c=>match(c,exclude))}
 function optionText(value,count){return `${value} · ${count}`}
 function fillSelect(field){
   const el=$(field), current=state[field]; const counts=new Map();
-  filterData(field).forEach(c=>{const v=field==='credits'?String(c.credits):c[field]; counts.set(v,(counts.get(v)||0)+1)});
+  filterData(field).forEach(c=>{const v=field==='credits'?String(c.credits):c[field]; if(field==='exam'&&!v)return; counts.set(v,(counts.get(v)||0)+1)});
   const vals=[...counts.keys()].sort((a,b)=>field==='credits'?(Number(a)-Number(b)):collator.compare(a,b));
   el.innerHTML=''; const all=document.createElement('option'); all.value=''; all.textContent=`${labels[field]} · ${filterData(field).length}`; el.appendChild(all);
   vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=optionText(v,counts.get(v));el.appendChild(o)});
@@ -552,7 +553,7 @@ function toast(msg,isWarn){
 $('search').addEventListener('input',e=>{state.search=e.target.value;state.page=1;render()});
 fields.forEach(f=>$(f).addEventListener('change',e=>{state[f]=e.target.value;state.page=1;render()}));
 document.querySelectorAll('#semesterSeg button').forEach(b=>b.onclick=()=>{state.semester=b.dataset.v;state.page=1;document.querySelectorAll('#semesterSeg button').forEach(x=>x.classList.toggle('active',x.dataset.v===state.semester));render()});
-$('clearFilters').onclick=()=>{Object.assign(state,{search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',page:1,onlySelected:false});$('search').value='';document.querySelectorAll('#semesterSeg button').forEach(b=>b.classList.toggle('active',b.dataset.v===''));render()};
+$('clearFilters').onclick=()=>{Object.assign(state,{search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',page:1,onlySelected:false});$('search').value='';document.querySelectorAll('#semesterSeg button').forEach(b=>b.classList.toggle('active',b.dataset.v===''));render()};
 $('pageSize').onchange=e=>{state.pageSize=Number(e.target.value);state.page=1;render()};
 $('prev').onclick=()=>{if(state.page>1){state.page--;render();document.querySelector('.table-card').scrollIntoView({behavior:'smooth',block:'start'})}};
 $('next').onclick=()=>{state.page++;render();document.querySelector('.table-card').scrollIntoView({behavior:'smooth',block:'start'})};
