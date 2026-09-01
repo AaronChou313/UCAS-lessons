@@ -180,6 +180,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
         <thead><tr>
           <th style="width:42px"></th>
           <th class="sortable" data-sort="name">课程名称 ↕</th>
+          <th class="sortable num" data-sort="credits">学分 ↕</th>
           <th class="sortable" data-sort="college">开课院系 ↕</th>
           <th class="sortable" data-sort="first">一级学科 ↕</th>
           <th class="sortable" data-sort="second">二级学科 / 专业 ↕</th>
@@ -191,7 +192,6 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
           <th class="sortable" data-sort="teach">授课方式 ↕</th>
           <th class="sortable" data-sort="exam">考试方式 ↕</th>
           <th class="sortable num" data-sort="hours">学时 ↕</th>
-          <th class="sortable num" data-sort="credits">学分 ↕</th>
           <th class="sortable num" data-sort="seat">余量 ↕</th>
           <th>课程编码</th>
         </tr></thead>
@@ -326,11 +326,11 @@ function renderList(){
     return `<tr>
     <td><button class="star ${selected.has(c.code)?'on':''}" data-code="${esc(c.code)}" title="${selected.has(c.code)?'移出已选':'加入已选'}">★</button></td>
     <td><div class="course-name"><span class="name-link" data-detail="${c.id}">${esc(c.name)}</span>${en?`<small>${en}</small>`:''}</div></td>
-    <td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td>
+    <td class="num"><b>${fmtNum(c.credits)}</b></td><td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td>
     <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="nowrap semester ${c.semester==='秋季'?'autumn':'spring'}">${esc(c.semester)}</td><td class="nowrap">${esc(c.campus)}</td>
     <td style="min-width:150px">${slotChips(c)}</td><td class="teacher">${teacherText(c)?esc(teacherText(c)):'<span class="seat-text">—</span>'}</td>
     <td class="method">${esc(c.teach||'—')}</td><td class="method">${esc(c.exam||'—')}</td>
-    <td class="num">${fmtNum(c.hours)}</td><td class="num"><b>${fmtNum(c.credits)}</b></td><td class="num">${seatHTML(c)}</td><td class="code">${esc(c.code)}</td></tr>`;
+    <td class="num">${fmtNum(c.hours)}</td><td class="num">${seatHTML(c)}</td><td class="code">${esc(c.code)}</td></tr>`;
   }).join('');
   $('empty').hidden=total!==0; document.querySelector('#listView table').style.display=total?'table':'none';
   $('rangeText').textContent=total?`显示 ${start+1}–${end} / ${total}`:'0 条结果'; $('pageNow').textContent=`${state.page} / ${pages}`; $('prev').disabled=state.page<=1; $('next').disabled=state.page>=pages;
