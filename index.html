@@ -87,9 +87,20 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .drawer{position:fixed;right:0;top:0;height:100vh;width:min(560px,94vw);background:white;z-index:51;transform:translateX(102%);transition:.22s ease;box-shadow:-22px 0 55px rgba(20,35,60,.17);display:flex;flex-direction:column}.drawer.open{transform:none}
 .drawer-head{padding:21px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.drawer-head h2{margin:0;font-size:19px}.drawer-head p{margin:4px 0 0;color:#7d899b;font-size:12px}
 .close{border:0;background:#f2f5f9;border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:20px;color:#657187}
-.selected-list{overflow:auto;flex:1;padding:10px 14px}.selected-item{display:grid;grid-template-columns:1fr auto;gap:8px;border-bottom:1px solid #edf1f5;padding:12px 6px}.selected-item b{font-size:13px}.selected-item small{display:block;color:#8490a3;margin-top:4px}.remove{border:0;background:transparent;color:#9b5e5e;cursor:pointer}
-.selected-item .si-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}.si-tags span{font-size:10.5px;background:#eef2f8;color:#5a6780;border-radius:5px;padding:1px 5px}
-.selected-item .si-warn{font-size:10.5px;color:#c0392b;margin-top:4px;font-weight:650}
+.selected-list{overflow:auto;flex:1;padding:10px 14px}
+.selected-item{border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin:8px 2px;background:#fff;box-shadow:0 1px 4px rgba(28,45,77,.04)}
+.si-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.si-head b{font-size:14px;color:#1f2c43;line-height:1.4}
+.remove{border:0;background:#f2f5f9;border-radius:8px;width:26px;height:26px;cursor:pointer;color:#8a5a5a;font-size:13px;flex:none;line-height:1}.remove:hover{background:#fbe9e7;color:#c0392b}
+.si-code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10.5px;color:#8a95a8;margin-top:4px}
+.si-meta{font-size:12px;color:#4b5870;margin-top:5px;line-height:1.55}
+.si-meta .badge{margin-right:2px}
+.si-sched{margin-top:8px;border-top:1px dashed #e6ebf3;padding-top:7px}
+.si-sched-label{font-size:10.5px;color:#98a2b3;margin-bottom:4px}
+.si-sched-item{font-size:11.5px;background:#f4f7fc;border:1px solid #e8edf5;border-radius:7px;padding:3px 8px;color:#3d4a63;margin-top:3px;line-height:1.6}
+.si-sched-item b{color:#3152aa;font-weight:700}
+.si-seat{font-size:12px;margin-top:8px;color:#4b5870;font-weight:650;font-variant-numeric:tabular-nums}
+.si-seat .seat.ok{color:#198b72}.si-seat .seat.low{color:#d97b29}.si-seat .seat.full{color:#c0392b}
+.si-warn{font-size:11px;color:#c0392b;margin-top:6px;font-weight:650;background:#fdf2f0;border:1px solid #f3d2cc;border-radius:7px;padding:5px 8px}
 .drawer-foot{border-top:1px solid var(--line);padding:14px 18px;background:#fbfcfe}.drawer-foot .sum{display:flex;justify-content:space-between;margin-bottom:10px;color:#4d5a70}.export{width:100%;border:0;background:var(--navy);color:white;padding:11px;border-radius:10px;cursor:pointer;font-weight:700}
 .note{font-size:11px;color:#8b96a8;line-height:1.7;margin:11px 4px 0}
 
@@ -117,10 +128,10 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
       <div>
         <div class="eyebrow">UCAS · COURSE EXPLORER</div>
         <h1>2026–2027 学年选课浏览器</h1>
-        <p>秋季学期已接入官网正式排课数据（上课时间、教室、任课教师、选课人数），支持筛选浏览、加入待选、模拟课程表与时间冲突自动检测。春季学期沿用开课计划数据。</p>
+        <p>秋季学期已接入官网正式排课数据（上课时间、教室、任课教师、选课人数），支持筛选浏览、加入已选、模拟课程表与时间冲突自动检测。春季学期沿用开课计划数据。</p>
       </div>
       <div class="hero-btns">
-        <button class="pick-btn" id="openSelected">★ 待选课程 <span class="badge-num" id="heroSelected">0</span><span class="conf-badge" id="heroConflict" hidden>0</span></button>
+        <button class="pick-btn" id="openSelected">★ 已选课程 <span class="badge-num" id="heroSelected">0</span><span class="conf-badge" id="heroConflict" hidden>0</span></button>
         <button class="pick-btn" id="openTimetable">📅 模拟课程表</button>
       </div>
     </div>
@@ -159,7 +170,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
       <div class="viewseg" id="viewSeg">
         <button data-v="list" class="active">📋 课程列表</button><button data-v="timetable">📅 模拟课程表</button>
       </div>
-      <button class="toggle" id="onlySelected">☆ 仅看待选</button>
+      <button class="toggle" id="onlySelected">☆ 仅看已选</button>
     </div>
   </div>
 
@@ -198,7 +209,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
     <div class="tt-head">
       <div>
         <div class="tt-title">模拟课程表 <span id="ttCount">0</span></div>
-        <div class="tt-sub" id="ttSub">将课程加入待选后即可在此预览每周上课安排。</div>
+        <div class="tt-sub" id="ttSub">将课程加入已选后即可在此预览每周上课安排。</div>
       </div>
       <div class="tt-controls">
         <label for="weekSelect" style="font-size:12px;color:#8490a3">查看周次</label>
@@ -225,9 +236,9 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 
 <div class="drawer-mask" id="mask"></div>
 <aside class="drawer" id="drawer">
-  <div class="drawer-head"><div><h2>待选课程</h2><p>收藏保存在当前浏览器，可导出 CSV；模拟课程表基于待选课程生成。</p></div><button class="close" id="closeDrawer">×</button></div>
+  <div class="drawer-head"><div><h2>已选课程</h2><p>你的选课保存在当前浏览器，可导出 CSV；模拟课程表基于已选课程生成。</p></div><button class="close" id="closeDrawer">×</button></div>
   <div class="selected-list" id="selectedList"></div>
-  <div class="drawer-foot"><div class="sum"><span id="selectedSummary">0 门课程</span><strong id="creditSummary">0 学分</strong></div><button class="export" id="exportCsv">导出待选课程 CSV</button></div>
+  <div class="drawer-foot"><div class="sum"><span id="selectedSummary">0 门课程</span><strong id="creditSummary">0 学分</strong></div><button class="export" id="exportCsv">导出已选课程 CSV</button></div>
 </aside>
 
 <aside class="drawer" id="detailDrawer">
@@ -313,7 +324,7 @@ function renderList(){
   $('tbody').innerHTML=view.map(c=>{
     const en=esc(c.en||'');
     return `<tr>
-    <td><button class="star ${selected.has(c.code)?'on':''}" data-code="${esc(c.code)}" title="${selected.has(c.code)?'移出待选':'加入待选'}">★</button></td>
+    <td><button class="star ${selected.has(c.code)?'on':''}" data-code="${esc(c.code)}" title="${selected.has(c.code)?'移出已选':'加入已选'}">★</button></td>
     <td><div class="course-name"><span class="name-link" data-detail="${c.id}">${esc(c.name)}</span>${en?`<small>${en}</small>`:''}</div></td>
     <td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td>
     <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="nowrap semester ${c.semester==='秋季'?'autumn':'spring'}">${esc(c.semester)}</td><td class="nowrap">${esc(c.campus)}</td>
@@ -323,7 +334,7 @@ function renderList(){
   }).join('');
   $('empty').hidden=total!==0; document.querySelector('#listView table').style.display=total?'table':'none';
   $('rangeText').textContent=total?`显示 ${start+1}–${end} / ${total}`:'0 条结果'; $('pageNow').textContent=`${state.page} / ${pages}`; $('prev').disabled=state.page<=1; $('next').disabled=state.page>=pages;
-  $('onlySelected').classList.toggle('active',state.onlySelected); $('onlySelected').textContent=state.onlySelected?'★ 正在仅看待选':'☆ 仅看待选';
+  $('onlySelected').classList.toggle('active',state.onlySelected); $('onlySelected').textContent=state.onlySelected?'★ 正在仅看已选':'☆ 仅看已选';
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
@@ -364,7 +375,7 @@ function updateConflictBadge(){
   const picks=selectedCourses();
   const n=computeConflicts(picks,0).length;
   const el=$('heroConflict'); el.hidden=n===0; el.textContent=n;
-  el.title=n?`待选课程中存在 ${n} 处时间冲突`:'无时间冲突';
+  el.title=n?`已选课程中存在 ${n} 处时间冲突`:'无时间冲突';
 }
 
 /* ================== 模拟课程表 ================== */
@@ -374,7 +385,7 @@ function renderTimetable(){
   const withSlots=picks.filter(c=>c.slots&&c.slots.length);
   const noSlots=picks.filter(c=>!c.slots||!c.slots.length);
   const week=state.week;
-  $('ttCount').textContent=`· 已排课 ${withSlots.length} 门 / 待选 ${picks.length} 门`;
+  $('ttCount').textContent=`· 已排课 ${withSlots.length} 门 / 已选 ${picks.length} 门`;
   $('ttSub').textContent=week>0?`当前查看第 ${week} 周 · 灰色块为本周无课`:`整学期视图 · 选择具体周次可模拟当周上课情况`;
   const conflicts=computeConflicts(withSlots,week);
   $('conflictCount').textContent=conflicts.length;
@@ -394,13 +405,13 @@ function renderTimetable(){
     ${[1,2,3,4,5,6,7].map(d=>dayColHTML(d,withSlots,week,confSet,colorIdx)).join('')}
   </div></div>`;
   if(!withSlots.length){
-    html=`<div class="tt-empty"><strong>还没有可排课表的待选课程</strong>先回到课程列表，点击课程左侧的 ★ 加入待选（秋季排课课程才会显示上课时间）。</div>`;
+    html=`<div class="tt-empty"><strong>还没有可排课表的已选课程</strong>先回到课程列表，点击课程左侧的 ★ 加入已选（秋季排课课程才会显示上课时间）。</div>`;
   }
   const chips=withSlots.map(c=>{
     const seat=seatOf(c),cls=seatClass(seat);
     return `<span class="chip-s"><i style="background:${colorIdx[c.code]}"></i><span class="ch-name">${esc(c.name)}</span><span>${(c.slots||[]).length} 个时段</span>${seat==null?'':`<span class="ch-seat ${cls}">余 ${seat}</span>`}</span>`;
   }).join('');
-  const noSchedHTML=state.showNoSched&&noSlots.length?`<div class="no-sched"><b>以下待选课程暂无排课信息</b>（多为春季学期课程或未排课，无法在课程表中显示）：${noSlots.map(c=>esc(c.name)).join('、')}</div>`:'';
+  const noSchedHTML=state.showNoSched&&noSlots.length?`<div class="no-sched"><b>以下已选课程暂无排课信息</b>（多为春季学期课程或未排课，无法在课程表中显示）：${noSlots.map(c=>esc(c.name)).join('、')}</div>`:'';
   $('ttBody').innerHTML=html+`<div class="sched-summary">${chips}</div>`+noSchedHTML;
 }
 function dayColHTML(day,withSlots,week,confSet,colorIdx){
@@ -471,11 +482,11 @@ function openDetail(id){
       <div class="kv"><label>已选人数</label><b>${c.enrolled||0}</b></div>
       <div class="kv"><label>剩余名额</label><b class="seat ${scls}">${seat==null?'—':seat}</b></div>
     </div>${c.capacity?`<div class="seat-bar"><i style="width:${pct}%;background:${barColor}"></i></div>`:''}</div>
-    <button class="dd-star ${selected.has(c.code)?'on':''}" data-code="${esc(c.code)}" data-name="${esc(c.name)}">${selected.has(c.code)?'★ 移出待选':'☆ 加入待选'}</button>`;
+    <button class="dd-star ${selected.has(c.code)?'on':''}" data-code="${esc(c.code)}" data-name="${esc(c.name)}">${selected.has(c.code)?'★ 移出已选':'☆ 加入已选'}</button>`;
   $('detailDrawer').classList.add('open'); $('mask').classList.add('open');
 }
 
-/* ================== 待选 / 抽屉 ================== */
+/* ================== 已选 / 抽屉 ================== */
 function conflictMsgFor(c){
   const picks=selectedCourses().filter(x=>x.code!==c.code);
   const cf=computeConflicts([...picks,c],0).filter(x=>x.a.code===c.code||x.b.code===c.code);
@@ -487,14 +498,14 @@ function toggleSelect(code,quiet){
   const c=COURSES.find(x=>x.code===code); if(!c)return;
   if(selected.has(code)){
     selected.delete(code);
-    if(!quiet)toast(`已移出待选：${c.name}`);
+    if(!quiet)toast(`已移出：${c.name}`);
   }else{
     const seat=seatOf(c);
     if(seat!=null&&seat<=0&&!quiet){toast(`⚠ 《${c.name}》已选满（${c.enrolled}/${c.capacity}），可能无法选上`,true);}
     selected.add(code);
     if(!quiet){
       const msg=conflictMsgFor(c);
-      toast(msg?`⚠ 已加入待选，但${msg}`:`已加入待选：${c.name}`);
+      toast(msg?`⚠ 已加入，但${msg}`:`已加入：${c.name}`);
     }
   }
   saveSelected(); updateSelectedUI(); updateConflictBadge();
@@ -510,11 +521,23 @@ function updateSelectedUI(){
   $('selectedList').innerHTML=picks.length?picks.map(c=>{
     const seat=seatOf(c),scls=seatClass(seat);
     const warn=conflictMsgFor(c);
-    return `<div class="selected-item"><div><b>${esc(c.name)}</b><small>${esc(c.semester)} · ${esc(c.college)} · ${fmtNum(c.credits)} 学分 · ${esc(c.campus)}</small>
-      <div class="si-tags">${(c.slots||[]).slice(0,3).map(s=>`<span>${DAY_CN[s.day]}${s.p}</span>`).join('')}${seat==null?'':`<span class="ch-seat ${scls}">余 ${seat}</span>`}</div>
-      ${warn?`<div class="si-warn">⚠ ${esc(warn)}</div>`:''}</div>
-      <button class="remove" data-code="${esc(c.code)}">移除</button></div>`;
-  }).join(''):'<div class="empty"><strong>还没有待选课程</strong>点击课程左侧的星标即可收藏。</div>';
+    const teacher=teacherText(c);
+    const sched=(c.slots||[]).map(s=>`<div class="si-sched-item"><b>${DAY_CN[s.day]} ${s.p}节</b><span> · ${esc(s.w)}</span>${c.room?`<span> · ${esc(c.room)}</span>`:''}</div>`).join('');
+    const seatBlock=c.capacity==null
+      ?`<div class="si-seat">不限选人数${c.enrolled?` · 已选 ${c.enrolled}`:''}</div>`
+      :`<div class="si-seat">限选 ${fmtNum(c.capacity)} / 已选 ${c.enrolled||0} / <span class="seat ${scls}">余 ${seat}</span></div>`;
+    return `<div class="selected-item">
+      <div class="si-head"><b>${esc(c.name)}</b><button class="remove" data-code="${esc(c.code)}" title="移出已选">✕</button></div>
+      <div class="si-code">${esc(c.code)}</div>
+      <div class="si-meta">${esc(c.college)} · ${esc(c.semester)} · ${esc(c.campus)}</div>
+      <div class="si-meta"><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span>${c.level?` · ${esc(c.level)}`:''} · ${fmtNum(c.hours)} 学时 / ${fmtNum(c.credits)} 学分</div>
+      ${teacher?`<div class="si-meta">教师：${esc(teacher)}</div>`:''}
+      ${c.teach||c.exam?`<div class="si-meta">${c.teach?`授课：${esc(c.teach)}`:''}${c.teach&&c.exam?'　':''}${c.exam?`考试：${esc(c.exam)}`:''}</div>`:''}
+      ${sched?`<div class="si-sched"><div class="si-sched-label">上课安排</div>${sched}</div>`:'<div class="si-meta" style="color:#8a95a8">暂无排课信息（春季学期或未排课）</div>'}
+      ${seatBlock}
+      ${warn?`<div class="si-warn">⚠ ${esc(warn)}</div>`:''}
+    </div>`;
+  }).join(''):'<div class="empty"><strong>还没有已选课程</strong>点击课程左侧的星标即可加入已选。</div>';
 }
 function openDrawer(on=true){$('drawer').classList.toggle('open',on);$('mask').classList.toggle('open',on);updateSelectedUI()}
 function toast(msg,isWarn){
@@ -555,7 +578,7 @@ $('exportCsv').onclick=()=>{
   const picks=selectedCourses(); if(!picks.length)return;
   const headers=['课程名称','课程编码','开课院系','一级学科','二级学科/专业','课程类别','学期','校区','学时','学分','上课时间','教师','授课方式','考试方式','限选','已选','余量'];
   const lines=[headers,...picks.map(c=>[c.name,c.code,c.college,c.first,c.second,c.category,c.semester,c.campus,c.hours,c.credits,(c.slots||[]).map(s=>DAY_CN[s.day]+s.p+'('+s.w+')').join(';'),teacherText(c),c.teach||'',c.exam||'',c.capacity==null?'不限':c.capacity,c.enrolled||0,seatOf(c)==null?'':seatOf(c)])].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
-  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='UCAS_待选课程.csv';a.click();URL.revokeObjectURL(a.href);
+  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='UCAS_已选课程.csv';a.click();URL.revokeObjectURL(a.href);
 };
 
 /* 周次下拉 */
