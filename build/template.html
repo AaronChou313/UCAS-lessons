@@ -28,7 +28,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .viewseg{display:flex;background:#eef1f7;border-radius:11px;padding:4px;gap:3px}.viewseg button{border:0;background:transparent;color:#667188;border-radius:8px;padding:8px 15px;cursor:pointer;font-weight:650}.viewseg button.active{background:white;color:#264688;box-shadow:0 2px 8px rgba(30,51,88,.09)}
 .table-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 5px 20px rgba(28,45,77,.035)}.table-scroll{overflow:auto;max-height:calc(100vh - 270px)}table{width:100%;border-collapse:separate;border-spacing:0;min-width:1200px}thead th{position:sticky;top:0;z-index:4;background:#f7f9fc;color:#6c788d;text-align:left;font-size:11px;font-weight:700;letter-spacing:.02em;padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:default}thead th.sortable{cursor:pointer}thead th.sortable:hover{color:#3159b4}tbody td{padding:11px 10px;border-bottom:1px solid #edf1f6;vertical-align:middle;color:#445067}tbody tr:hover{background:#fafcff}tbody tr:last-child td{border-bottom:0}
 .course-name{font-weight:690;color:#1f2c43;line-height:1.4}.course-name small{display:block;color:#98a2b3;font-weight:400;font-size:11px;margin-top:2px;line-height:1.45}.name-link{cursor:pointer}.name-link:hover{color:var(--blue);text-decoration:underline}
-.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:#8a95a8;white-space:nowrap}.college{white-space:nowrap}.subj{white-space:nowrap}.nowrap{white-space:nowrap}.num{text-align:right;font-variant-numeric:tabular-nums}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:#8a95a8;white-space:nowrap}.code a{color:#3152aa;text-decoration:none;font-weight:650}.code a:hover{text-decoration:underline;color:#4066d5}.si-code a{color:#3152aa;text-decoration:none;font-weight:650}.si-code a:hover{text-decoration:underline}.dd-syl{display:inline-block;margin-top:8px;padding:6px 12px;border-radius:8px;background:var(--blueSoft);color:#3152aa;font-size:12.5px;font-weight:700;text-decoration:none}.dd-syl:hover{background:#dbe7ff}.college{white-space:nowrap}.subj{white-space:nowrap}.nowrap{white-space:nowrap}.num{text-align:right;font-variant-numeric:tabular-nums}
 .slot-chip{display:inline-block;background:var(--blueSoft);color:#3152aa;border-radius:7px;padding:2px 7px;font-size:11px;margin:1px 3px 1px 0;white-space:nowrap;font-weight:600}.slot-chip .room{margin-left:4px;padding:0 4px;border-radius:5px;background:#fff5de;color:#8a6c2a;font-weight:600}.slot-chip.multi{border-left:3px solid var(--blue)}
 .teacher{color:#4b5870;font-size:12.5px;white-space:nowrap}.teacher small{display:block;color:#9aa3b4;font-size:11px}.method{font-size:12px;color:#4b5870;white-space:nowrap}.level{font-size:12px;color:#5a6780;white-space:nowrap}
 .seat{font-weight:700;font-variant-numeric:tabular-nums}.seat.full{color:#c0392b}.seat.low{color:#d97b29}.seat.ok{color:#198b72}.seat-text{font-size:10.5px;color:#9aa3b4;display:block}
@@ -254,6 +254,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 
 <script>
 /*__COURSES__*/
+const SYLLABI_URLS=/*__SYLLABI__*/{};
 const $=id=>document.getElementById(id);
 const DAY_CN=['','周一','周二','周三','周四','周五','周六','周日'];
 const PERIOD_START={1:'08:00',2:'08:55',3:'09:50',4:'10:45',5:'13:30',6:'14:25',7:'15:20',8:'16:15',9:'17:10',10:'18:30',11:'19:25',12:'20:20',13:'21:15'};
@@ -341,7 +342,7 @@ function renderList(){
     <td style="min-width:170px">${slotChips(c)}</td>
     <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="level">${esc(c.level||'—')}</td><td class="nowrap">${esc(c.campus)}</td><td class="nowrap semester ${c.semester==='秋季'?'autumn':'spring'}">${esc(c.semester)}</td>
     <td class="num">${seatHTML(c)}</td><td class="num">${fmtNum(c.hours)}</td>
-    <td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td><td class="code">${esc(c.code)}</td></tr>`;
+    <td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td><td class="code">${SYLLABI_URLS[c.code]?`<a href="${SYLLABI_URLS[c.code]}" target="_blank" rel="noopener" title="查看课程大纲">${esc(c.code)}</a>`:esc(c.code)}</td></tr>`;
   }).join('');
   $('empty').hidden=total!==0; document.querySelector('#listView table').style.display=total?'table':'none';
   $('rangeText').textContent=total?`显示 ${start+1}–${end} / ${total}`:'0 条结果'; $('pageNow').textContent=`${state.page} / ${pages}`; $('prev').disabled=state.page<=1; $('next').disabled=state.page>=pages;
@@ -483,7 +484,7 @@ function openDetail(id){
   const scheduleTable=slots.length?`<table class="dd-schedule"><thead><tr><th>星期</th><th>节次</th><th>开课周</th><th>教室</th></tr></thead><tbody>${slots.map(s=>`<tr><td>${DAY_CN[s.day]}</td><td>${s.p} 节</td><td>${esc(s.w)}</td><td>${esc(c.room||'—')}</td></tr>`).join('')}</tbody></table>`:'<p style="color:#8a95a8;font-size:13px">该课程暂无排课信息（春季学期或未排课）。</p>';
   const teacherRows=[['首席教授',c.chief,c.chiefUnit],['主讲教师',c.main,c.mainUnit],['助教',c.ta,c.taUnit],['召集人',c.convener,'']].filter(r=>r[1]).map(r=>`<div class="row"><span class="who">${r[0]}：${esc(r[1])}</span>${r[2]?`<span class="unit">${esc(r[2])}</span>`:''}</div>`).join('');
   $('detailBody').innerHTML=`
-    <div class="dd-title"><h2>${esc(c.name)}</h2>${c.en?`<div class="en">${esc(c.en)}</div>`:''}<span class="code">${esc(c.code)}</span></div>
+    <div class="dd-title"><h2>${esc(c.name)}</h2>${c.en?`<div class="en">${esc(c.en)}</div>`:''}<span class="code">${SYLLABI_URLS[c.code]?`<a href="${SYLLABI_URLS[c.code]}" target="_blank" rel="noopener">${esc(c.code)}</a>`:esc(c.code)}</span>${SYLLABI_URLS[c.code]?` <a class="dd-syl" href="${SYLLABI_URLS[c.code]}" target="_blank" rel="noopener">📄 查看教学大纲 ↗</a>`:''}</div>
     <div class="dd-grid">
       <div class="dd-item"><label>开课院系</label><b>${esc(c.college)}</b></div>
       <div class="dd-item"><label>培养层次</label><b>${esc(c.level||'—')}</b></div>
@@ -551,7 +552,7 @@ function updateSelectedUI(){
       :`<div class="si-seat">限选 ${fmtNum(c.capacity)} / 已选 ${c.enrolled||0} / <span class="seat ${scls}">余 ${seat}</span></div>`;
     return `<div class="selected-item">
       <div class="si-head"><b>${esc(c.name)}</b><button class="remove" data-code="${esc(c.code)}" title="移出已选">✕</button></div>
-      <div class="si-code">${esc(c.code)}</div>
+      <div class="si-code">${SYLLABI_URLS[c.code]?`<a href="${SYLLABI_URLS[c.code]}" target="_blank" rel="noopener" title="查看课程大纲">${esc(c.code)}</a>`:esc(c.code)}</div>
       <div class="si-meta">${esc(c.college)} · ${esc(c.semester)} · ${esc(c.campus)}</div>
       <div class="si-meta"><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span>${c.level?` · ${esc(c.level)}`:''} · ${fmtNum(c.hours)} 学时 / ${fmtNum(c.credits)} 学分</div>
       ${teacher?`<div class="si-meta">教师：${esc(teacher)}</div>`:''}
