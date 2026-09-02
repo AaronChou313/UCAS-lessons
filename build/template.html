@@ -23,7 +23,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .filter-top{display:grid;grid-template-columns:minmax(300px,1.65fr) 1fr auto;gap:12px;align-items:center}.search{position:relative}.search input{width:100%;height:42px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:0 14px 0 40px;outline:none}.search input:focus{border-color:#9db0ec;box-shadow:0 0 0 3px #eef2ff}.search svg{position:absolute;width:17px;left:14px;top:12px;stroke:#8a96aa}
 .segments{display:flex;background:#f0f3f8;border-radius:11px;padding:4px;gap:3px}.segments button{border:0;background:transparent;color:#667188;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:650;flex:1}.segments button.active{background:white;color:#264688;box-shadow:0 2px 8px rgba(30,51,88,.09)}
 .clear{border:1px solid var(--line);background:white;height:42px;padding:0 15px;border-radius:11px;cursor:pointer;color:#5f6c82}.clear:hover{background:#f7f9fc}
-.filters{display:grid;grid-template-columns:repeat(7,minmax(128px,1fr));gap:10px;margin-top:12px}.field label{display:block;color:#8490a3;font-size:11px;margin:0 0 5px 3px}.field select{width:100%;height:39px;border:1px solid var(--line);border-radius:10px;background:white;color:#38445a;padding:0 30px 0 10px;outline:none;text-overflow:ellipsis}.field select:focus{border-color:#a5b6e9}
+.filters{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:10px;margin-top:12px}.field label{display:block;color:#8490a3;font-size:11px;margin:0 0 5px 3px}.field select{width:100%;height:39px;border:1px solid var(--line);border-radius:10px;background:white;color:#38445a;padding:0 30px 0 10px;outline:none;text-overflow:ellipsis}.field select:focus{border-color:#a5b6e9}
 .result-head{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:19px 3px 10px}.result-title{font-weight:700;font-size:16px}.result-title span{color:var(--blue)}.result-sub{color:var(--muted);font-size:12px;margin-top:3px}.head-actions{display:flex;gap:8px;align-items:center}.toggle{border:1px solid var(--line);background:white;border-radius:10px;padding:8px 11px;cursor:pointer;color:#59667c}.toggle.active{border-color:#a9b8e7;background:var(--blueSoft);color:#3152aa}
 .viewseg{display:flex;background:#eef1f7;border-radius:11px;padding:4px;gap:3px}.viewseg button{border:0;background:transparent;color:#667188;border-radius:8px;padding:8px 15px;cursor:pointer;font-weight:650}.viewseg button.active{background:white;color:#264688;box-shadow:0 2px 8px rgba(30,51,88,.09)}
 .table-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 5px 20px rgba(28,45,77,.035)}.table-scroll{overflow:auto;max-height:calc(100vh - 270px)}table{width:100%;border-collapse:separate;border-spacing:0;min-width:1200px}thead th{position:sticky;top:0;z-index:4;background:#f7f9fc;color:#6c788d;text-align:left;font-size:11px;font-weight:700;letter-spacing:.02em;padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:default}thead th.sortable{cursor:pointer}thead th.sortable:hover{color:#3159b4}tbody td{padding:11px 10px;border-bottom:1px solid #edf1f6;vertical-align:middle;color:#445067}tbody tr:hover{background:#fafcff}tbody tr:last-child td{border-bottom:0}
@@ -162,6 +162,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
       <div class="field"><label for="campus">开课校区</label><select id="campus"></select></div>
       <div class="field"><label for="credits">学分</label><select id="credits"></select></div>
       <div class="field"><label for="exam">考试方式</label><select id="exam"></select></div>
+      <div class="field"><label for="day">星期</label><select id="day"></select></div>
     </div>
   </section>
 
@@ -172,6 +173,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
         <button data-v="list" class="active">📋 课程列表</button><button data-v="timetable">📅 模拟课程表</button>
       </div>
       <button class="toggle" id="onlySelected">☆ 仅看已选</button>
+      <button class="toggle" id="onlyNoConflict" title="仅显示与已选课程上课时间不冲突的课程">⚡ 不与已选冲突</button>
     </div>
   </div>
 
@@ -257,11 +259,11 @@ const DAY_CN=['','周一','周二','周三','周四','周五','周六','周日']
 const PERIOD_START={1:'08:00',2:'08:55',3:'09:50',4:'10:45',5:'13:30',6:'14:25',7:'15:20',8:'16:15',9:'17:10',10:'18:30',11:'19:25',12:'20:20',13:'21:15'};
 const COLORS=['#3f66cf','#14856e','#c97b22','#7a4fb3','#c0392b','#0f8a9d','#8a6d1c','#4e8a3a','#8b4d7a','#b5552a','#3f7d8f','#6d7f2e'];
 
-const state={search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',week:0,showNoSched:true};
+const state={search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',day:'',noConflict:false,page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',week:0,showNoSched:true};
 let selected=new Set(JSON.parse(localStorage.getItem('ucas-course-selected-codes')||'[]').map(String));
 const collator=new Intl.Collator('zh-CN',{numeric:true,sensitivity:'base'});
-const fields=['college','first','second','category','campus','credits','exam'];
-const labels={college:'全部院系',first:'全部一级学科',second:'全部二级学科',category:'全部课程类别',campus:'全部校区',credits:'全部学分',exam:'全部考试方式'};
+const fields=['college','first','second','category','campus','credits','exam','day'];
+const labels={college:'全部院系',first:'全部一级学科',second:'全部二级学科',category:'全部课程类别',campus:'全部校区',credits:'全部学分',exam:'全部考试方式',day:'全部星期'};
 
 function norm(v){return (v??'').toString().trim().toLowerCase()}
 function teacherText(c){return (c.main||c.chief||c.convener||'').trim()||(c.ta||'')}
@@ -271,8 +273,10 @@ function searchText(c){
 }
 function match(c,exclude){
   if(state.onlySelected && !selected.has(c.code)) return false;
+  if(state.noConflict && !selected.has(c.code) && conflictsWithSelected(c)) return false;
   if(state.search){const q=norm(state.search); if(!searchText(c).includes(q))return false}
   if(exclude!=='semester' && state.semester && c.semester!==state.semester)return false;
+  if(exclude!=='day' && state.day && !(c.slots||[]).some(s=>String(s.day)===state.day))return false;
   for(const f of ['college','first','second','category','campus','exam']) if(exclude!==f && state[f] && c[f]!==state[f])return false;
   if(exclude!=='credits' && state.credits && String(c.credits)!==state.credits)return false;
   return true;
@@ -281,10 +285,12 @@ function filterData(exclude){return COURSES.filter(c=>match(c,exclude))}
 function optionText(value,count){return `${value} · ${count}`}
 function fillSelect(field){
   const el=$(field), current=state[field]; const counts=new Map();
-  filterData(field).forEach(c=>{const v=field==='credits'?String(c.credits):c[field]; if(field==='exam'&&!v)return; counts.set(v,(counts.get(v)||0)+1)});
-  const vals=[...counts.keys()].sort((a,b)=>field==='credits'?(Number(a)-Number(b)):collator.compare(a,b));
+  filterData(field).forEach(c=>{
+    if(field==='day'){(c.slots||[]).forEach(s=>{const v=String(s.day);counts.set(v,(counts.get(v)||0)+1)});return}
+    const v=field==='credits'?String(c.credits):c[field]; if(field==='exam'&&!v)return; counts.set(v,(counts.get(v)||0)+1)});
+  const vals=[...counts.keys()].sort((a,b)=>(field==='credits'||field==='day')?(Number(a)-Number(b)):collator.compare(a,b));
   el.innerHTML=''; const all=document.createElement('option'); all.value=''; all.textContent=`${labels[field]} · ${filterData(field).length}`; el.appendChild(all);
-  vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=optionText(v,counts.get(v));el.appendChild(o)});
+  vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=optionText(field==='day'?DAY_CN[Number(v)]:v,counts.get(v));el.appendChild(o)});
   if(vals.includes(current))el.value=current; else {state[field]='';el.value=''}
 }
 function badgeClass(cat){if(cat.includes('公共'))return'b-public';if(cat.includes('核心'))return'b-core';if(cat==='专业课')return'b-pro';if(cat.includes('研讨'))return'b-seminar';if(cat.includes('实验')||cat.includes('实践'))return'b-lab';return'b-other'}
@@ -339,7 +345,7 @@ function renderList(){
   }).join('');
   $('empty').hidden=total!==0; document.querySelector('#listView table').style.display=total?'table':'none';
   $('rangeText').textContent=total?`显示 ${start+1}–${end} / ${total}`:'0 条结果'; $('pageNow').textContent=`${state.page} / ${pages}`; $('prev').disabled=state.page<=1; $('next').disabled=state.page>=pages;
-  $('onlySelected').classList.toggle('active',state.onlySelected); $('onlySelected').textContent=state.onlySelected?'★ 正在仅看已选':'☆ 仅看已选';
+  $('onlySelected').classList.toggle('active',state.onlySelected); $('onlySelected').textContent=state.onlySelected?'★ 正在仅看已选':'☆ 仅看已选'; $('onlyNoConflict').classList.toggle('active',state.noConflict); $('onlyNoConflict').textContent=state.noConflict?'✓ 正在筛选不与已选冲突':'⚡ 不与已选冲突';
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
@@ -374,6 +380,18 @@ function computeConflicts(picks,week){
     }
   }
   return out;
+}
+function conflictsWithSelected(c){
+  for(const s of selectedCourses()){
+    if(s.code===c.code)continue;
+    for(const sa of (c.slots||[]))for(const sb of (s.slots||[])){
+      if(sa.day!==sb.day)continue;
+      if(sa.start>sb.end||sb.start>sa.end)continue;
+      const wa=parseWeeks(sa.w),wb=parseWeeks(sb.w);
+      if([...wa].some(w=>wb.has(w)))return true;
+    }
+  }
+  return false;
 }
 function selectedCourses(){return COURSES.filter(c=>selected.has(c.code))}
 function updateConflictBadge(){
@@ -554,11 +572,11 @@ function toast(msg,isWarn){
 $('search').addEventListener('input',e=>{state.search=e.target.value;state.page=1;render()});
 fields.forEach(f=>$(f).addEventListener('change',e=>{state[f]=e.target.value;state.page=1;render()}));
 document.querySelectorAll('#semesterSeg button').forEach(b=>b.onclick=()=>{state.semester=b.dataset.v;state.page=1;document.querySelectorAll('#semesterSeg button').forEach(x=>x.classList.toggle('active',x.dataset.v===state.semester));render()});
-$('clearFilters').onclick=()=>{Object.assign(state,{search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',page:1,onlySelected:false});$('search').value='';document.querySelectorAll('#semesterSeg button').forEach(b=>b.classList.toggle('active',b.dataset.v===''));render()};
+$('clearFilters').onclick=()=>{Object.assign(state,{search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',day:'',noConflict:false,page:1,onlySelected:false});$('search').value='';document.querySelectorAll('#semesterSeg button').forEach(b=>b.classList.toggle('active',b.dataset.v===''));render()};
 $('pageSize').onchange=e=>{state.pageSize=Number(e.target.value);state.page=1;render()};
 $('prev').onclick=()=>{if(state.page>1){state.page--;render();document.querySelector('.table-card').scrollIntoView({behavior:'smooth',block:'start'})}};
 $('next').onclick=()=>{state.page++;render();document.querySelector('.table-card').scrollIntoView({behavior:'smooth',block:'start'})};
-$('onlySelected').onclick=()=>{state.onlySelected=!state.onlySelected;state.page=1;render()};
+$('onlySelected').onclick=()=>{state.onlySelected=!state.onlySelected;state.page=1;render()};$('onlyNoConflict').onclick=()=>{state.noConflict=!state.noConflict;state.page=1;render()};
 document.querySelector('thead').addEventListener('click',e=>{const th=e.target.closest('[data-sort]');if(!th)return;const f=th.dataset.sort;if(state.sort===f)state.dir*=-1;else{state.sort=f;state.dir=1}state.page=1;render()});
 $('tbody').addEventListener('click',e=>{
   const st=e.target.closest('.star'); if(st){toggleSelect(st.dataset.code);return}
