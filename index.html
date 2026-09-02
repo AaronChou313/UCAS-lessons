@@ -320,7 +320,16 @@ const PERIOD_START={1:'08:00',2:'08:55',3:'09:50',4:'10:45',5:'13:30',6:'14:25',
 const COLORS=['#3f66cf','#14856e','#c97b22','#7a4fb3','#c0392b','#0f8a9d','#8a6d1c','#4e8a3a','#8b4d7a','#b5552a','#3f7d8f','#6d7f2e'];
 
 const state={search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',day:'',noConflict:false,page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',week:0,showNoSched:true};
-let selected=new Set(JSON.parse(localStorage.getItem('ucas-course-selected-codes')||'[]').map(String));
+let selected=new Set((JSON.parse(localStorage.getItem('ucas-course-selected')||'[]')||[]).map(Number));
+if(!localStorage.getItem('ucas-course-selected')){
+  const legacy=JSON.parse(localStorage.getItem('ucas-course-selected-codes')||'[]');
+  if(Array.isArray(legacy)&&legacy.length){
+    const idByCode={};
+    COURSES.forEach(c=>{const cur=idByCode[c.code];if(!cur||(c.semester==='秋季'&&cur[1]!=='秋季'))idByCode[c.code]=[c.id,c.semester]});
+    legacy.forEach(code=>{const hit=idByCode[code];if(hit)selected.add(hit[0])});
+    localStorage.setItem('ucas-course-selected',JSON.stringify([...selected]));
+  }
+}
 const collator=new Intl.Collator('zh-CN',{numeric:true,sensitivity:'base'});
 const fields=['college','first','second','category','campus','credits','exam','day'];
 const labels={college:'全部院系',first:'全部一级学科',second:'全部二级学科',category:'全部课程类别',campus:'全部校区',credits:'全部学分',exam:'全部考试方式',day:'全部星期'};
@@ -332,8 +341,8 @@ function searchText(c){
     c.room,c.main,c.chief,c.convener,c.ta,(c.slots||[]).map(s=>DAY_CN[s.day]+s.p+' '+s.w).join(' ')].map(norm).join(' ');
 }
 function match(c,exclude){
-  if(state.onlySelected && !selected.has(c.code)) return false;
-  if(state.noConflict && !selected.has(c.code) && conflictsWithSelected(c)) return false;
+  if(state.onlySelected && !selected.has(c.id)) return false;
+  if(state.noConflict && !selected.has(c.id) && conflictsWithSelected(c)) return false;
   if(state.search){const q=norm(state.search); if(!searchText(c).includes(q))return false}
   if(exclude!=='semester' && state.semester && c.semester!==state.semester)return false;
   if(exclude!=='day' && state.day && !(c.slots||[]).some(s=>String(s.day)===state.day))return false;
@@ -393,7 +402,7 @@ function renderList(){
   $('tbody').innerHTML=view.map(c=>{
     const en=esc(c.en||'');
     return `<tr>
-    <td><button class="star ${selected.has(c.code)?'on':''}" data-code="${esc(c.code)}" title="${selected.has(c.code)?'移出已选':'加入已选'}">★</button></td>
+    <td><button class="star ${selected.has(c.id)?'on':''}" data-id="${c.id}" title="${selected.has(c.id)?'移出已选':'加入已选'}">★</button></td>
     <td><div class="course-name"><span class="name-link" data-detail="${c.id}" title="${esc(c.name)}">${esc(c.name)}</span>${en?`<small>${en}</small>`:''}</div></td>
     <td class="num"><b>${fmtNum(c.credits)}</b></td>
     <td class="teacher">${teacherText(c)?esc(teacherText(c)):'<span class="seat-text">—</span>'}</td>
@@ -443,7 +452,7 @@ function computeConflicts(picks,week){
 }
 function conflictsWithSelected(c){
   for(const s of selectedCourses()){
-    if(s.code===c.code)continue;
+    if(s.id===c.id)continue;
     for(const sa of (c.slots||[]))for(const sb of (s.slots||[])){
       if(sa.day!==sb.day)continue;
       if(sa.start>sb.end||sb.start>sa.end)continue;
@@ -453,7 +462,7 @@ function conflictsWithSelected(c){
   }
   return false;
 }
-function selectedCourses(){return COURSES.filter(c=>selected.has(c.code))}
+function selectedCourses(){return COURSES.filter(c=>selected.has(c.id))}
 function updateConflictBadge(){
   const picks=selectedCourses();
   const n=computeConflicts(picks,0).length;
@@ -565,27 +574,27 @@ function openDetail(id){
       <div class="kv"><label>已选人数</label><b>${c.enrolled||0}</b></div>
       <div class="kv"><label>剩余名额</label><b class="seat ${scls}">${seat==null?'—':seat}</b></div>
     </div>${c.capacity?`<div class="seat-bar"><i style="width:${pct}%;background:${barColor}"></i></div>`:''}</div>
-    <button class="dd-star ${selected.has(c.code)?'on':''}" data-code="${esc(c.code)}" data-name="${esc(c.name)}">${selected.has(c.code)?'★ 移出已选':'☆ 加入已选'}</button>`;
+    <button class="dd-star ${selected.has(c.id)?'on':''}" data-id="${c.id}">${selected.has(c.id)?'★ 移出已选':'☆ 加入已选'}</button>`;
   $('detailDrawer').classList.add('open'); $('mask').classList.add('open');
 }
 
 /* ================== 已选 / 抽屉 ================== */
 function conflictMsgFor(c){
-  const picks=selectedCourses().filter(x=>x.code!==c.code);
+  const picks=selectedCourses().filter(x=>x.id!==c.id);
   const cf=computeConflicts([...picks,c],0).filter(x=>x.a.code===c.code||x.b.code===c.code);
   if(!cf.length)return'';
   const first=cf[0]; const other=first.a.code===c.code?first.b:first.a;
   return `与《${other.name}》在 ${DAY_CN[first.sa.day]}${first.sa.p} 冲突（${fmtWeeks(first.weeks)}）`;
 }
-function toggleSelect(code,quiet){
-  const c=COURSES.find(x=>x.code===code); if(!c)return;
-  if(selected.has(code)){
-    selected.delete(code);
+function toggleSelect(id,quiet){
+  const c=COURSES.find(x=>x.id===id); if(!c)return;
+  if(selected.has(id)){
+    selected.delete(id);
     if(!quiet)toast(`已移出：${c.name}`);
   }else{
     const seat=seatOf(c);
     if(seat!=null&&seat<=0&&!quiet){toast(`⚠ 《${c.name}》已选满（${c.enrolled}/${c.capacity}），可能无法选上`,true);}
-    selected.add(code);
+    selected.add(id);
     if(!quiet){
       const msg=conflictMsgFor(c);
       toast(msg?`⚠ 已加入，但${msg}`:`已加入：${c.name}`);
@@ -595,7 +604,7 @@ function toggleSelect(code,quiet){
   if(state.view==='timetable')renderTimetable();
   render();
 }
-function saveSelected(){localStorage.setItem('ucas-course-selected-codes',JSON.stringify([...selected]))}
+function saveSelected(){localStorage.setItem('ucas-course-selected',JSON.stringify([...selected]))}
 function updateSelectedUI(){
   const picks=selectedCourses(); const sum=picks.reduce((s,c)=>s+c.credits,0);
   $('heroSelected').textContent=picks.length;
@@ -610,7 +619,7 @@ function updateSelectedUI(){
       ?`<div class="si-seat">不限选人数${c.enrolled?` · 已选 ${c.enrolled}`:''}</div>`
       :`<div class="si-seat">限选 ${fmtNum(c.capacity)} / 已选 ${c.enrolled||0} / <span class="seat ${scls}">余 ${seat}</span></div>`;
     return `<div class="selected-item">
-      <div class="si-head"><b>${esc(c.name)}</b><button class="remove" data-code="${esc(c.code)}" title="移出已选">✕</button></div>
+      <div class="si-head"><b>${esc(c.name)}</b><button class="remove" data-id="${c.id}" title="移出已选">✕</button></div>
       <div class="si-code">${SYLLABI_URLS[c.code]?`<a href="${SYLLABI_URLS[c.code]}" target="_blank" rel="noopener" title="查看课程大纲">${esc(c.code)}</a>`:esc(c.code)}</div>
       <div class="si-meta">${esc(c.college)} · ${esc(c.semester)} · ${esc(c.campus)}</div>
       <div class="si-meta"><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span>${c.level?` · ${esc(c.level)}`:''} · ${fmtNum(c.hours)} 学时 / ${fmtNum(c.credits)} 学分</div>
@@ -639,7 +648,7 @@ $('next').onclick=()=>{state.page++;render();document.querySelector('.table-card
 $('onlySelected').onclick=()=>{state.onlySelected=!state.onlySelected;state.page=1;render()};$('onlyNoConflict').onclick=()=>{state.noConflict=!state.noConflict;state.page=1;render()};
 document.querySelector('thead').addEventListener('click',e=>{const th=e.target.closest('[data-sort]');if(!th)return;const f=th.dataset.sort;if(state.sort===f)state.dir*=-1;else{state.sort=f;state.dir=1}state.page=1;render()});
 $('tbody').addEventListener('click',e=>{
-  const st=e.target.closest('.star'); if(st){toggleSelect(st.dataset.code);return}
+  const st=e.target.closest('.star'); if(st){toggleSelect(Number(st.dataset.id));return}
   const dl=e.target.closest('[data-detail]'); if(dl){openDetail(dl.dataset.detail);return}
 });
 document.querySelector('#viewSeg').addEventListener('click',e=>{
@@ -655,8 +664,8 @@ $('closeDetail').onclick=()=>{$('detailDrawer').classList.remove('open');$('mask
 $('ttBody').addEventListener('click',e=>{const b=e.target.closest('[data-detail]');if(b)openDetail(b.dataset.detail)});
 $('weekSelect').onchange=e=>{state.week=Number(e.target.value);renderTimetable()};
 $('ttShowNoSched').onclick=e=>{state.showNoSched=!state.showNoSched;e.target.classList.toggle('active',state.showNoSched);renderTimetable()};
-$('selectedList').addEventListener('click',e=>{const b=e.target.closest('[data-code]');if(b){const code=b.dataset.code;if(b.classList.contains('remove')){toggleSelect(code,true)}else{toggleSelect(code)}}});
-$('detailBody').addEventListener('click',e=>{const b=e.target.closest('.dd-star');if(b)toggleSelect(b.dataset.code)});
+$('selectedList').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(b){const id=Number(b.dataset.id);if(b.classList.contains('remove')){toggleSelect(id,true)}else{toggleSelect(id)}}});
+$('detailBody').addEventListener('click',e=>{const b=e.target.closest('.dd-star');if(b)toggleSelect(Number(b.dataset.id))});
 $('exportCsv').onclick=()=>{
   const picks=selectedCourses(); if(!picks.length)return;
   const headers=['课程名称','课程编码','开课院系','一级学科','二级学科/专业','课程类别','学期','校区','学时','学分','上课时间','教师','授课方式','考试方式','限选','已选','余量'];
