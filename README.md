@@ -19,6 +19,17 @@
 
 秋季学期以官网正式排课表为准；春季学期沿用开课计划，暂无具体排课信息。
 
+## 课程大纲采集
+
+秋季学期课程大纲已从国科大教务公开目录采集，保存在 `syllabi/` 目录：
+
+- `course_syllabi.json`：2078 门课程的结构化大纲（目的要求、大纲内容、教材、参考书等），字段缺失留空
+- `course_syllabi.csv`：课程编码与大纲链接索引
+- `unmatched.csv`：未匹配/下载失败的课程
+- `scrape_syllabi.py`：采集脚本（缓存 + 断点续跑 + 低频请求）
+
+重新采集：`python3 syllabi/scrape_syllabi.py`。原始 HTML 缓存于 `syllabi/raw/`（已在 .gitignore 中，可再生成）。
+
 ## 使用
 
 直接用浏览器打开 `index.html` 即可。

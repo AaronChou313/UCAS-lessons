@@ -1,3 +1,5 @@
 .DS_Store
 .claude/
 build/courses_merged.json
+syllabi/raw/
+__pycache__/
