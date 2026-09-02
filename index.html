@@ -115,7 +115,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .dd-kv{display:flex;gap:10px;flex-wrap:wrap}.dd-kv .kv{flex:1;min-width:130px;background:#f7f9fc;border-radius:9px;padding:9px 11px}.dd-kv .kv label{display:block;color:#98a2b3;font-size:11px}.dd-kv .kv b{font-size:13px;color:#26304a}
 .seat-bar{height:7px;background:#eef1f6;border-radius:99px;overflow:hidden;margin-top:6px}.seat-bar i{display:block;height:100%;border-radius:99px}
 .dd-star{width:100%;margin-top:18px;border:0;background:var(--navy);color:white;padding:12px;border-radius:11px;cursor:pointer;font-weight:750;font-size:14px}.dd-star.on{background:#e8a51d;color:#3c2d05}
-#toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:#20304e;color:white;padding:11px 18px;border-radius:12px;font-size:13px;box-shadow:0 12px 30px rgba(20,35,60,.25);opacity:0;pointer-events:none;transition:.22s;z-index:99;max-width:86vw}
+.changelog-list{overflow:auto;flex:1;padding:14px 22px}.cl-item{padding:14px 0;border-bottom:1px solid #edf1f5}.cl-item:last-child{border-bottom:0}.cl-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.cl-date{font-size:11px;color:#98a2b3;font-weight:650}.cl-ver{font-weight:800;color:#3152aa;font-size:13.5px}.cl-ver.latest{background:var(--blueSoft);padding:2px 10px;border-radius:99px}.cl-item ul{margin:8px 0 0;padding-left:18px;color:#445067;font-size:12.5px;line-height:1.85}#toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:#20304e;color:white;padding:11px 18px;border-radius:12px;font-size:13px;box-shadow:0 12px 30px rgba(20,35,60,.25);opacity:0;pointer-events:none;transition:.22s;z-index:99;max-width:86vw}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}#toast.warn{background:#9a3a2b}
 @media(max-width:1100px){.filters{grid-template-columns:repeat(3,1fr)}.filter-top{grid-template-columns:1.4fr 1fr auto}.stats{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:760px){.wrap{padding:12px 12px 35px}.hero{padding:22px 20px;border-radius:18px}.hero-top{display:block}.hero-btns{margin-top:17px;flex-direction:row}.pick-btn{margin-top:0}.hero h1{font-size:24px}.stats{grid-template-columns:repeat(2,1fr)}.filter-panel{position:relative;top:auto;padding:13px}.filter-top{grid-template-columns:1fr}.filters{grid-template-columns:repeat(2,1fr)}.clear{width:100%}.table-scroll{max-height:none}.result-head{align-items:flex-end}.result-sub{max-width:60vw}.head-actions{flex-direction:column;align-items:stretch}.note{font-size:10px}.dd-grid{grid-template-columns:1fr}.timetable-panel{padding:12px}}
@@ -133,6 +133,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
       <div class="hero-btns">
         <button class="pick-btn" id="openSelected">★ 已选课程 <span class="badge-num" id="heroSelected">0</span><span class="conf-badge" id="heroConflict" hidden>0</span></button>
         <button class="pick-btn" id="openTimetable">📅 模拟课程表</button>
+        <button class="pick-btn" id="openChangelog">📜 更新日志</button>
       </div>
     </div>
     <div class="stats">
@@ -248,6 +249,64 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 <aside class="drawer" id="detailDrawer">
   <div class="drawer-head"><div><h2>课程详情</h2><p>点击外部任意位置关闭</p></div><button class="close" id="closeDetail">×</button></div>
   <div class="dd-body" id="detailBody"></div>
+</aside>
+
+<aside class="drawer" id="changelogDrawer">
+  <div class="drawer-head"><div><h2>更新日志</h2><p>UCAS 选课浏览器 · 版本记录</p></div><button class="close" id="closeChangelog">×</button></div>
+  <div class="changelog-list">
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver latest">v2.3</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>课程编码可点击跳转教学大纲页（表格、详情抽屉、已选列表）</li><li>课程详情抽屉新增"查看教学大纲"按钮</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v2.2</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>新增按星期筛选（周一~周日）</li><li>新增"不与已选冲突"筛选，一键筛出与已选课程不冲突的课程</li><li>筛选面板 8 项改为 4×2 两行排布</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v2.1</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>新增培养层次列（硕士课程 / 硕博通用课程 / 博士课程）</li><li>采集并内置 2078 门秋季课程教学大纲（含大纲内容、教材、参考书）</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v2.0</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>新增考试方式筛选（闭卷笔试 / 课堂开卷 / 读书报告等）</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.9</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>表格新增授课方式、考试方式列</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.8</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>表格恢复内容自适应宽度，所有列信息完整显示、不再截断</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.7</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>重排表格列序：教师、学分、考试方式等关键信息前置</li><li>表格随窗口宽度自适应，加宽窗口即可完整显示全部列</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.6</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>学分列移至课程名称之后</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.5</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>"待选课程"更名"已选课程"</li><li>已选列表升级为信息卡片，展示课程完整信息（编码、上课安排、教师、授课/考试方式、选课人数等）</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.4</span><span class="cl-date">2026-09-01</span></div>
+      <ul><li>修复课程表色块文字在浅色背景上的可读性问题</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.3</span><span class="cl-date">2026-09-01</span></div>
+      <ul><li>入口重命名为 index.html 适配 GitHub Pages，添加 .nojekyll 修复静态页面托管</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.2</span><span class="cl-date">2026-09-01</span></div>
+      <ul><li>接入官网 2026 秋季正式排课数据（2079 门课程：教室、开课周、任课教师、选课人数）</li><li>新增模拟课程表（周视图网格 + 按第 1-20 周模拟当周上课情况）</li><li>自动课程时间冲突检测（同时考虑星期、节次、周次交集）</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v1.0</span><span class="cl-date">2026-08</span></div>
+      <ul><li>基于《2026-2027学年秋季和春季开课计划表0828》制作选课浏览页</li><li>2974 门课程浏览、多条件筛选、搜索、星标收藏、CSV 导出</li></ul>
+    </div>
+  </div>
 </aside>
 
 <div id="toast"></div>
@@ -591,7 +650,7 @@ document.querySelector('#viewSeg').addEventListener('click',e=>{
 });
 $('openTimetable').onclick=()=>{state.view='timetable';state.week=0;$('weekSelect').value=0;render();$('timetableView').scrollIntoView({behavior:'smooth',block:'start'})};
 $('openSelected').onclick=()=>openDrawer(true);
-$('closeDrawer').onclick=()=>openDrawer(false);$('mask').onclick=()=>openDrawer(false);
+$('closeDrawer').onclick=()=>openDrawer(false);$('mask').onclick=()=>{openDrawer(false);$('detailDrawer').classList.remove('open');$('changelogDrawer').classList.remove('open');$('mask').classList.remove('open')};$('openChangelog').onclick=()=>{$('changelogDrawer').classList.add('open');$('mask').classList.add('open')};$('closeChangelog').onclick=()=>{$('changelogDrawer').classList.remove('open');$('mask').classList.remove('open')};
 $('closeDetail').onclick=()=>{$('detailDrawer').classList.remove('open');$('mask').classList.remove('open')};
 $('ttBody').addEventListener('click',e=>{const b=e.target.closest('[data-detail]');if(b)openDetail(b.dataset.detail)});
 $('weekSelect').onchange=e=>{state.week=Number(e.target.value);renderTimetable()};
