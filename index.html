@@ -43,8 +43,15 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .tt-title{font-weight:800;font-size:17px}.tt-title span{color:var(--blue)}
 .tt-sub{color:var(--muted);font-size:12px;margin-top:4px}
 .tt-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.tt-controls select,.tt-controls button{border:1px solid var(--line);background:white;border-radius:10px;height:36px;padding:0 12px;color:#4b5870;cursor:pointer;outline:none}
-.tt-controls select:focus{border-color:#a5b6e9}
+.tt-controls button{border:1px solid var(--line);background:white;border-radius:10px;height:36px;padding:0 12px;color:#4b5870;cursor:pointer;outline:none}
+.tt-seg{display:flex;background:#eef1f7;border-radius:11px;padding:3px;gap:3px}
+.tt-seg button{border:0;background:transparent;color:#667188;border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:650;height:auto}
+.tt-seg button.active{background:white;color:#264688;box-shadow:0 2px 8px rgba(30,51,88,.09)}
+.week-nav{display:flex;align-items:center;gap:5px}
+.week-nav button{width:38px;padding:0;font-size:17px;border-radius:50%}
+.week-nav button:disabled{opacity:.3;cursor:default}
+#weekLabel{font-weight:750;color:#26304a;font-size:13px;min-width:96px;text-align:center;white-space:nowrap}
+.tt-day-date{font-size:10px;color:#8a96aa;font-weight:700}
 .conflict-panel{display:none;margin:0 0 12px;padding:12px 14px;border-radius:12px;background:#fdf2f0;border:1px solid #f3d2cc;color:#8f3a2c;font-size:13px}
 .conflict-panel.show{display:block}
 .conflict-panel b{font-size:13.5px}.conflict-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}
@@ -217,8 +224,15 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
         <div class="tt-sub" id="ttSub">将课程加入已选后即可在此预览每周上课安排。</div>
       </div>
       <div class="tt-controls">
-        <label for="weekSelect" style="font-size:12px;color:#8490a3">查看周次</label>
-        <select id="weekSelect"></select>
+        <div class="tt-seg" id="ttModeSeg">
+          <button data-m="overview" class="active">整学期课表</button>
+          <button data-m="weekly">每周课表</button>
+        </div>
+        <div class="week-nav" id="weekNav" hidden>
+          <button id="weekPrev" title="上一周">‹</button>
+          <span id="weekLabel">第 1 周</span>
+          <button id="weekNext" title="下一周">›</button>
+        </div>
         <button id="ttShowNoSched" class="active">含无课表课程</button>
       </div>
     </div>
@@ -255,7 +269,11 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
   <div class="drawer-head"><div><h2>更新日志</h2><p>UCAS 选课浏览器 · 版本记录</p></div><button class="close" id="closeChangelog">×</button></div>
   <div class="changelog-list">
     <div class="cl-item">
-      <div class="cl-head"><span class="cl-ver latest">v2.3</span><span class="cl-date">2026-09-02</span></div>
+      <div class="cl-head"><span class="cl-ver latest">v2.4</span><span class="cl-date">2026-09-02</span></div>
+      <ul><li>课程表加入校历日期（秋季 2026-08-31 起共 20 周 / 春季 2027-02-22 起共 16 周），每周视图逐日显示日期</li><li>新增「整学期课表 / 每周课表」切换，每周模式用 ‹ › 箭头快速换周</li></ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v2.3</span><span class="cl-date">2026-09-02</span></div>
       <ul><li>课程编码可点击跳转教学大纲页（表格、详情抽屉、已选列表）</li><li>课程详情抽屉新增"查看教学大纲"按钮</li></ul>
     </div>
     <div class="cl-item">
@@ -318,8 +336,13 @@ const $=id=>document.getElementById(id);
 const DAY_CN=['','周一','周二','周三','周四','周五','周六','周日'];
 const PERIOD_START={1:'08:00',2:'08:55',3:'09:50',4:'10:45',5:'13:30',6:'14:25',7:'15:20',8:'16:15',9:'17:10',10:'18:30',11:'19:25',12:'20:20',13:'21:15'};
 const COLORS=['#3f66cf','#14856e','#c97b22','#7a4fb3','#c0392b','#0f8a9d','#8a6d1c','#4e8a3a','#8b4d7a','#b5552a','#3f7d8f','#6d7f2e'];
+const CAL={autumn:{start:[2026,7,31],weeks:20},spring:{start:[2027,1,22],weeks:16}};
+function activeCal(){return state.semester==='春季'?CAL.spring:CAL.autumn}
+function weekDates(cal,week){const b=cal.start;const base=new Date(b[0],b[1],b[2]+(week-1)*7);return [...Array(7)].map((_,i)=>new Date(b[0],b[1],b[2]+(week-1)*7+i))}
+function dFmt(d){return (d.getMonth()+1)+'/'+d.getDate()}
+function mdFmt(d){return (d.getMonth()+1)+'月'+d.getDate()+'日'}
 
-const state={search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',day:'',noConflict:false,page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',week:0,showNoSched:true};
+const state={search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',day:'',noConflict:false,page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',ttMode:'overview',week:1,showNoSched:true};
 let selected=new Set((JSON.parse(localStorage.getItem('ucas-course-selected')||'[]')||[]).map(Number));
 if(!localStorage.getItem('ucas-course-selected')){
   const legacy=JSON.parse(localStorage.getItem('ucas-course-selected-codes')||'[]');
@@ -476,23 +499,37 @@ function renderTimetable(){
   const picks=selectedCourses();
   const withSlots=picks.filter(c=>c.slots&&c.slots.length);
   const noSlots=picks.filter(c=>!c.slots||!c.slots.length);
-  const week=state.week;
+  const cal=activeCal(),mode=state.ttMode;
+  if(state.week<1||state.week>cal.weeks)state.week=1;
+  const week=mode==='weekly'?state.week:0;
+  document.querySelectorAll('#ttModeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.m===mode));
+  $('weekNav').hidden=mode!=='weekly';
   $('ttCount').textContent=`· 已排课 ${withSlots.length} 门 / 已选 ${picks.length} 门`;
-  $('ttSub').textContent=week>0?`当前查看第 ${week} 周 · 灰色块为本周无课`:`整学期视图 · 选择具体周次可模拟当周上课情况`;
+  if(mode==='weekly'){
+    const dts=weekDates(cal,state.week);
+    $('weekLabel').textContent=`第 ${state.week} 周`;
+    $('weekPrev').disabled=state.week<=1;
+    $('weekNext').disabled=state.week>=cal.weeks;
+    let cnt=0;withSlots.forEach(c=>(c.slots||[]).forEach(s=>{if(parseWeeks(s.w).has(state.week))cnt++}));
+    $('ttSub').textContent=`第 ${state.week} 周 · ${mdFmt(dts[0])} ~ ${mdFmt(dts[6])} · ${state.semester==='春季'?'春季':'秋季'}学期 · 本周 ${cnt} 个上课时段`;
+  }else{
+    $('ttSub').textContent='整学期总览：显示全部上课时段。切到「每周课表」可查看每周日期与实际课程';
+  }
   const conflicts=computeConflicts(withSlots,week);
   $('conflictCount').textContent=conflicts.length;
   $('conflictPanel').classList.toggle('show',conflicts.length>0);
   $('conflictList').innerHTML=conflicts.map(cf=>{
-    const weeks=week>0?`第 ${week} 周`:`${fmtWeeks(cf.weeks)}`;
+    const weeks=week>0?`第 ${state.week} 周`:`${fmtWeeks(cf.weeks)}`;
     return `<div class="conflict-item"><span class="vs">⚠ 冲突</span><b>${esc(cf.a.name)}</b><span>×</span><b>${esc(cf.b.name)}</b><span class="where">${DAY_CN[cf.sa.day]} ${cf.sa.p} / ${cf.sb.p}</span><span>${weeks}</span></div>`;
   }).join('');
   const confSet=new Set();
   conflicts.forEach(cf=>{confSet.add(cf.a.code+'|'+cf.sa.day+'|'+cf.sa.start+'-'+cf.sa.end);confSet.add(cf.b.code+'|'+cf.sb.day+'|'+cf.sb.start+'-'+cf.sb.end);});
   const colorIdx={}; withSlots.forEach((c,i)=>colorIdx[c.code]=COLORS[i%COLORS.length]);
   const times=[...Array(13)].map((_,i)=>`<div class="time-cell"><b>第${i+1}节</b><span>${PERIOD_START[i+1]||''}</span></div>`).join('');
+  const dts=mode==='weekly'?weekDates(cal,state.week):null;
   let html=`<div class="tt-grid-wrap"><div class="tg">
     <div class="t-corner">节次</div>
-    ${[1,2,3,4,5,6,7].map(d=>`<div class="t-day${d>=6?' week':''}">${DAY_CN[d]}${d>=6?'<span class="dot"></span>':''}</div>`).join('')}
+    ${[1,2,3,4,5,6,7].map(d=>dayHeadHTML(d,mode,dts)).join('')}
     <div class="times-col">${times}</div>
     ${[1,2,3,4,5,6,7].map(d=>dayColHTML(d,withSlots,week,confSet,colorIdx)).join('')}
   </div></div>`;
@@ -506,9 +543,19 @@ function renderTimetable(){
   const noSchedHTML=state.showNoSched&&noSlots.length?`<div class="no-sched"><b>以下已选课程暂无排课信息</b>（多为春季学期课程或未排课，无法在课程表中显示）：${noSlots.map(c=>esc(c.name)).join('、')}</div>`:'';
   $('ttBody').innerHTML=html+`<div class="sched-summary">${chips}</div>`+noSchedHTML;
 }
+function dayHeadHTML(d,mode,dts){
+  const dot=d>=6?'<span class="dot"></span>':'';
+  const cls=`t-day${d>=6?' week':''}`;
+  if(mode!=='weekly'||!dts)return`<div class="${cls}">${DAY_CN[d]}${dot}</div>`;
+  return`<div class="${cls}">${DAY_CN[d]}${dot}<span class="tt-day-date">${dFmt(dts[d-1])}</span></div>`;
+}
 function dayColHTML(day,withSlots,week,confSet,colorIdx){
   const entries=[];
-  withSlots.forEach(c=>(c.slots||[]).forEach(s=>{if(s.day===day)entries.push({c,s});}));
+  withSlots.forEach(c=>(c.slots||[]).forEach(s=>{
+    if(s.day!==day)return;
+    if(week>0&&!parseWeeks(s.w).has(week))return;
+    entries.push({c,s});
+  }));
   if(!entries.length)return`<div class="day-col ${day>=6?'sat':''}"></div>`;
   const sorted=[...entries].sort((a,b)=>a.s.start-b.s.start);
   const tracks=[];
@@ -520,13 +567,12 @@ function dayColHTML(day,withSlots,week,confSet,colorIdx){
   const trackW=100/tracks.length;
   let blocks='';
   for(const e of entries){
-    const active=week===0||parseWeeks(e.s.w).has(week);
     const key=e.c.code+'|'+e.s.day+'|'+e.s.start+'-'+e.s.end;
     const clash=confSet.has(key);
     const color=colorIdx[e.c.code]||'#8893a8';
     const top=(e.s.start-1)*ROW_H, h=(e.s.end-e.s.start+1)*ROW_H-3;
-    blocks+=`<div class="slot-block${active?'':' inactive'}${clash?' conflict':''}" data-detail="${e.c.id}"
-      style="top:${top}px;height:${h}px;left:calc(${e.track}*${trackW}% + 1px);width:calc(${trackW}% - 3px);background:${color}${active?'4d':''};color:${active?ink(color):'#9aa3b4'};border-color:${clash?'':color+'99'}"
+    blocks+=`<div class="slot-block${clash?' conflict':''}" data-detail="${e.c.id}"
+      style="top:${top}px;height:${h}px;left:calc(${e.track}*${trackW}% + 1px);width:calc(${trackW}% - 3px);background:${color}4d;color:${ink(color)};border-color:${clash?'':color+'99'}"
       title="${esc(e.c.name)} · ${DAY_CN[e.s.day]}${e.s.p} · ${e.s.w}${e.c.room?' · '+esc(e.c.room):''}">
       <div class="sb-name">${esc(e.c.name)}</div>
       <div class="sb-time">${e.s.p}节 · ${e.s.w}</div>
@@ -653,16 +699,18 @@ $('tbody').addEventListener('click',e=>{
 });
 document.querySelector('#viewSeg').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b)return;
-  state.view=b.dataset.v; state.week=0; $('weekSelect').value=0;
+  state.view=b.dataset.v; state.ttMode='overview'; state.week=1;
   render();
   if(state.view==='timetable')$('timetableView').scrollIntoView({behavior:'smooth',block:'start'});
 });
-$('openTimetable').onclick=()=>{state.view='timetable';state.week=0;$('weekSelect').value=0;render();$('timetableView').scrollIntoView({behavior:'smooth',block:'start'})};
+$('openTimetable').onclick=()=>{state.view='timetable';state.ttMode='overview';state.week=1;render();$('timetableView').scrollIntoView({behavior:'smooth',block:'start'})};
 $('openSelected').onclick=()=>openDrawer(true);
 $('closeDrawer').onclick=()=>openDrawer(false);$('mask').onclick=()=>{openDrawer(false);$('detailDrawer').classList.remove('open');$('changelogDrawer').classList.remove('open');$('mask').classList.remove('open')};$('openChangelog').onclick=()=>{$('changelogDrawer').classList.add('open');$('mask').classList.add('open')};$('closeChangelog').onclick=()=>{$('changelogDrawer').classList.remove('open');$('mask').classList.remove('open')};
 $('closeDetail').onclick=()=>{$('detailDrawer').classList.remove('open');$('mask').classList.remove('open')};
 $('ttBody').addEventListener('click',e=>{const b=e.target.closest('[data-detail]');if(b)openDetail(b.dataset.detail)});
-$('weekSelect').onchange=e=>{state.week=Number(e.target.value);renderTimetable()};
+$('ttModeSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.ttMode=b.dataset.m;renderTimetable()});
+$('weekPrev').onclick=()=>{if(state.week>1){state.week--;renderTimetable()}};
+$('weekNext').onclick=()=>{const cal=activeCal();if(state.week<cal.weeks){state.week++;renderTimetable()}};
 $('ttShowNoSched').onclick=e=>{state.showNoSched=!state.showNoSched;e.target.classList.toggle('active',state.showNoSched);renderTimetable()};
 $('selectedList').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(b){const id=Number(b.dataset.id);if(b.classList.contains('remove')){toggleSelect(id,true)}else{toggleSelect(id)}}});
 $('detailBody').addEventListener('click',e=>{const b=e.target.closest('.dd-star');if(b)toggleSelect(Number(b.dataset.id))});
@@ -673,12 +721,6 @@ $('exportCsv').onclick=()=>{
   const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='UCAS_已选课程.csv';a.click();URL.revokeObjectURL(a.href);
 };
 
-/* 周次下拉 */
-(function(){
-  const sel=$('weekSelect');
-  const all=document.createElement('option'); all.value='0'; all.textContent='整学期'; sel.appendChild(all);
-  for(let w=1;w<=20;w++){const o=document.createElement('option');o.value=w;o.textContent=`第 ${w} 周`;sel.appendChild(o);}
-})();
 render();
 </script>
 </body>
