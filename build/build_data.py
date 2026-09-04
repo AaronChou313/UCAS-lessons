@@ -4,13 +4,12 @@ import openpyxl, json, re
 from collections import Counter, defaultdict
 
 NEW_FILE = '../2026年秋季学期课表.xlsx'
-HTML_FILE = '../index.html'
+LEGACY_FILE = 'legacy_plan_0828.json'   # 0828 开课计划派生基准（学科归类/校区核对）
+SPRING_FILE = '../2026-2027学年秋季和春季开课计划表0903.xlsx'  # 官网 0903 更新版
 OUT = 'courses_merged.json'
 
-# ---------- 1. load existing COURSES from HTML ----------
-html = open(HTML_FILE, encoding='utf-8').read()
-m = re.search(r'const COURSES=(\[.*?\]);', html, re.S)
-existing = json.loads(m.group(1))
+# ---------- 1. load legacy plan (用于学科归类 map 与校区交叉核对) ----------
+existing = json.load(open(LEGACY_FILE, encoding='utf-8'))
 
 # ---------- 2. load new timetable ----------
 wb = openpyxl.load_workbook(NEW_FILE, data_only=True)
@@ -157,22 +156,37 @@ for i, c in enumerate(courses, 1):
     }
     autumn.append(rec)
 
-# ---------- 5. spring records (keep verbatim) ----------
+# ---------- 5. spring records (from 官网 0903 更新版开课计划) ----------
 spring = []
-for c in existing:
-    if c['semester'] == '春季':
-        spring.append({
-            'id': 0,  # filled later
-            'code': c['code'], 'name': c['name'], 'en': '',
-            'college': c['college'], 'campus': c['campus'], 'semester': '春季',
-            'category': c['category'], 'discipline': c['discipline'], 'subjectCode': c['subjectCode'],
-            'first': c['first'], 'second': c['second'],
-            'level': '', 'hours': c['hours'], 'credits': c['credits'],
-            'capacity': None, 'enrolled': 0,
-            'exam': '', 'teach': '',
-            'chief': '', 'chiefUnit': '', 'main': '', 'mainUnit': '', 'ta': '', 'taUnit': '', 'convener': '',
-            'room': '', 'slots': [],
-        })
+legacy_spring = {c['code']: c for c in existing if c['semester'] == '春季'}
+wb2 = openpyxl.load_workbook(SPRING_FILE, data_only=True)
+ws2 = wb2['2026-2027学年春季学期课程计划情况']
+for r in ws2.iter_rows(min_row=3, values_only=True):
+    if r[0] is None: continue
+    seq, college, code, name, campus, sem, category, discipline, hours, credits = r
+    code = str(code).strip(); name = str(name).strip()
+    college = str(college).strip(); campus = str(campus).strip()
+    discipline = str(discipline).strip() if discipline else ''
+    category = str(category).strip() if category else ''
+    sc = code[6:12] if len(code) >= 12 else ''
+    legacy_rec = legacy_spring.get(code)
+    if legacy_rec and legacy_rec.get('first'):
+        first, second = legacy_rec['first'], legacy_rec['second']
+    else:
+        first, second = derive_first_second(code, sc, discipline)
+    spring.append({
+        'id': 0,  # filled later
+        'code': code, 'name': name, 'en': '',
+        'college': college, 'campus': campus, 'semester': '春季',
+        'category': category, 'discipline': discipline, 'subjectCode': sc,
+        'first': first, 'second': second,
+        'level': '', 'hours': float(hours), 'credits': float(credits),
+        'capacity': None, 'enrolled': 0,
+        'exam': '', 'teach': '',
+        'chief': '', 'chiefUnit': '', 'main': '', 'mainUnit': '', 'ta': '', 'taUnit': '', 'convener': '',
+        'room': '', 'slots': [],
+    })
+wb2.close()
 
 # ---------- 6. assign ids, validate ----------
 all_courses = autumn + spring
