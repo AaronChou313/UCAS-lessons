@@ -156,7 +156,16 @@ for i, c in enumerate(courses, 1):
     }
     autumn.append(rec)
 
-# ---------- 5. spring records (from 官网 0903 更新版开课计划) ----------
+# ---------- 5. load official Hangzhou courses ----------
+hangzhou = json.load(open('hangzhou_courses.json', encoding='utf-8'))
+bad = [c.get('code', '') for c in hangzhou
+       if not c.get('code', '').startswith('280216') or c.get('campus') != '杭州'
+       or c.get('semester') not in {'秋季', '春季'}]
+if bad:
+    raise ValueError(f'invalid Hangzhou course records: {bad[:5]}')
+print(f'loaded Hangzhou courses: {len(hangzhou)}')
+
+# ---------- 6. spring records (from 官网 0903 更新版开课计划) ----------
 spring = []
 legacy_spring = {c['code']: c for c in existing if c['semester'] == '春季'}
 wb2 = openpyxl.load_workbook(SPRING_FILE, data_only=True)
@@ -188,25 +197,34 @@ for r in ws2.iter_rows(min_row=3, values_only=True):
     })
 wb2.close()
 
-# ---------- 6. assign ids, validate ----------
-all_courses = autumn + spring
+# 杭州文件可在正式春季课表发布后独立更新；避免与全校计划中的同编码课程重复。
+hangzhou_keys = {(c['code'], c['semester']) for c in hangzhou}
+spring = [c for c in spring if (c['code'], c['semester']) not in hangzhou_keys]
+
+# ---------- 7. assign ids, validate ----------
+all_courses = autumn + spring + hangzhou
 for idx, c in enumerate(all_courses, 1):
     c['id'] = idx
 
 # validation
 issues = []
-codes_a = [c['code'] for c in autumn]
+autumn_all = autumn + [c for c in hangzhou if c['semester'] == '秋季']
+spring_all = spring + [c for c in hangzhou if c['semester'] == '春季']
+codes_a = [c['code'] for c in autumn_all]
 dup_a = [k for k, v in Counter(codes_a).items() if v > 1]
 if dup_a: issues.append(f'duplicate autumn codes: {dup_a[:10]}')
-no_slots = [c['code'] for c in autumn if not c['slots']]
+codes_s = [c['code'] for c in spring_all]
+dup_s = [k for k, v in Counter(codes_s).items() if v > 1]
+if dup_s: issues.append(f'duplicate spring codes: {dup_s[:10]}')
+no_slots = [c['code'] for c in autumn_all if not c['slots']]
 if no_slots: issues.append(f'autumn courses with no slots: {len(no_slots)} {no_slots[:5]}')
-no_room = [c['code'] for c in autumn if not c['room']]
+no_room = [c['code'] for c in autumn_all if not c['room']]
 if no_room: issues.append(f'autumn courses with no room: {len(no_room)} {no_room[:5]}')
-over = [c['code'] for c in autumn if c['capacity'] and c['enrolled'] > c['capacity']]
+over = [c['code'] for c in autumn_all if c['capacity'] and c['enrolled'] > c['capacity']]
 if over: issues.append(f'enrolled>capacity: {len(over)} {over[:5]}')
 print('warnings:', len(warn), warn[:10])
 print('issues:', issues if issues else 'NONE')
-print(f'total: autumn={len(autumn)} spring={len(spring)} all={len(all_courses)}')
+print(f'total: autumn={len(autumn_all)} spring={len(spring_all)} all={len(all_courses)}')
 
 json.dump(all_courses, open(OUT, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 print('written', OUT)
@@ -218,5 +236,5 @@ print('categories:', len(set(c['category'] for c in all_courses)))
 print('firsts:', len(set(c['first'] for c in all_courses)))
 print('campuses:', dict(Counter(c['campus'] for c in all_courses)))
 # autumn slots stats
-slot_counts = Counter(len(c['slots']) for c in autumn)
+slot_counts = Counter(len(c['slots']) for c in autumn_all)
 print('autumn slots/course:', dict(sorted(slot_counts.items())))
