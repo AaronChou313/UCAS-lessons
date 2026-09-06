@@ -108,7 +108,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 .si-seat{font-size:12px;margin-top:8px;color:#4b5870;font-weight:650;font-variant-numeric:tabular-nums}
 .si-seat .seat.ok{color:#198b72}.si-seat .seat.low{color:#d97b29}.si-seat .seat.full{color:#c0392b}
 .si-warn{font-size:11px;color:#c0392b;margin-top:6px;font-weight:650;background:#fdf2f0;border:1px solid #f3d2cc;border-radius:7px;padding:5px 8px}
-.drawer-foot{border-top:1px solid var(--line);padding:14px 18px;background:#fbfcfe}.drawer-foot .sum{display:flex;justify-content:space-between;margin-bottom:10px;color:#4d5a70}.export{width:100%;border:0;background:var(--navy);color:white;padding:11px;border-radius:10px;cursor:pointer;font-weight:700}
+.drawer-foot{border-top:1px solid var(--line);padding:14px 18px;background:#fbfcfe}.drawer-foot .sum{display:flex;justify-content:space-between;margin-bottom:10px;color:#4d5a70}.export-row{display:flex;gap:8px}.export{flex:1;border:0;background:var(--navy);color:white;padding:11px;border-radius:10px;cursor:pointer;font-weight:700}.export.alt{background:#14856e}.export.alt:hover{filter:brightness(1.08)}
 .note{font-size:11px;color:#8b96a8;line-height:1.7;margin:11px 4px 0}
 
 /* 课程详情抽屉 */
@@ -257,7 +257,9 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 <aside class="drawer" id="drawer">
   <div class="drawer-head"><div><h2>已选课程</h2><p>你的选课保存在当前浏览器，可导出 CSV；模拟课程表基于已选课程生成。</p></div><button class="close" id="closeDrawer">×</button></div>
   <div class="selected-list" id="selectedList"></div>
-  <div class="drawer-foot"><div class="sum"><span id="selectedSummary">0 门课程</span><strong id="creditSummary">0 学分</strong></div><button class="export" id="exportCsv">导出已选课程 CSV</button></div>
+  <div class="drawer-foot"><div class="sum"><span id="selectedSummary">0 门课程</span><strong id="creditSummary">0 学分</strong></div>
+    <div class="export-row"><button class="export" id="exportCsv" title="包含完整课程信息与大纲链接">导出已选课程信息</button><button class="export alt" id="exportTimetable" title="导出为 WakeUp 课程表可导入的 CSV（课程名称/星期/节次/老师/地点/周数）">导出课程表</button></div>
+    <div class="note" style="margin-top:8px">「导出课程表」生成 WakeUp 等 App 可导入的 CSV，按已选课程的秋季排课展开。</div></div>
 </aside>
 
 <aside class="drawer" id="detailDrawer">
@@ -714,11 +716,23 @@ $('weekNext').onclick=()=>{const cal=activeCal();if(state.week<cal.weeks){state.
 $('ttShowNoSched').onclick=e=>{state.showNoSched=!state.showNoSched;e.target.classList.toggle('active',state.showNoSched);renderTimetable()};
 $('selectedList').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(b){const id=Number(b.dataset.id);if(b.classList.contains('remove')){toggleSelect(id,true)}else{toggleSelect(id)}}});
 $('detailBody').addEventListener('click',e=>{const b=e.target.closest('.dd-star');if(b)toggleSelect(Number(b.dataset.id))});
+function wkFmt(w){return String(w||'').replace(/[第周]/g,'').split(',').map(x=>x.trim()).filter(Boolean).join('、')}
+function csvDownload(name,lines){const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
 $('exportCsv').onclick=()=>{
   const picks=selectedCourses(); if(!picks.length)return;
-  const headers=['课程名称','课程编码','开课院系','一级学科','二级学科/专业','课程类别','学期','校区','学时','学分','上课时间','教师','授课方式','考试方式','限选','已选','余量'];
-  const lines=[headers,...picks.map(c=>[c.name,c.code,c.college,c.first,c.second,c.category,c.semester,c.campus,c.hours,c.credits,(c.slots||[]).map(s=>DAY_CN[s.day]+s.p+'('+s.w+')').join(';'),teacherText(c),c.teach||'',c.exam||'',c.capacity==null?'不限':c.capacity,c.enrolled||0,seatOf(c)==null?'':seatOf(c)])].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
-  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='UCAS_已选课程.csv';a.click();URL.revokeObjectURL(a.href);
+  const headers=['课程名称','课程编码','开课院系','一级学科','二级学科/专业','课程类别','学期','校区','学时','学分','上课时间','教师','授课方式','考试方式','限选','已选','余量','课程大纲链接'];
+  const lines=[headers,...picks.map(c=>[c.name,c.code,c.college,c.first,c.second,c.category,c.semester,c.campus,c.hours,c.credits,(c.slots||[]).map(s=>DAY_CN[s.day]+s.p+'('+s.w+')').join(';'),teacherText(c),c.teach||'',c.exam||'',c.capacity==null?'不限':c.capacity,c.enrolled||0,seatOf(c)==null?'':seatOf(c),SYLLABI_URLS[c.code]||''])].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+  csvDownload('UCAS_已选课程信息.csv',lines);
+};
+$('exportTimetable').onclick=()=>{
+  const picks=selectedCourses();
+  const rows=[];
+  picks.forEach(c=>(c.slots||[]).forEach(s=>{rows.push([c.name,String(s.day),String(s.start),String(s.end),teacherText(c)||'无',c.room||'无',wkFmt(s.w)])}));
+  if(!rows.length){toast('没有可导出的排课（已选课程暂无排课信息）',true);return}
+  const headers=['课程名称','星期','开始节数','结束节数','老师','地点','周数'];
+  const lines=[headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+  csvDownload('UCAS_课程表.csv',lines);
+  toast(`已导出 ${rows.length} 条课程时段（WakeUp 格式）`);
 };
 
 render();
