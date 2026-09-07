@@ -1,6 +1,6 @@
 # UCAS 2026–2027 选课浏览器
 
-中国科学院大学 2026–2027 学年选课浏览与模拟工具。单个 HTML 文件，无需安装、无需联网，浏览器直接打开即可使用。
+中国科学院大学 2026–2027 学年选课浏览与模拟工具。工具逻辑与课程数据分离：页面轻量，数据按需加载（在线版 / 本地起服务打开）。
 
 ## 功能
 
@@ -14,7 +14,10 @@
 
 | 文件 | 用途 |
 |---|---|
-| `2026年秋季学期课表.xlsx` | 秋季学期正式排课数据（官网），含教室、教师、选课人数 |
+| `datas/2026年秋季学期课表-京内学院.xlsx` | 京内学院秋季排课数据（官网导出） |
+| `datas/2026年秋季学期课表-京外学院.xlsx` | 京外学院秋季排课数据 |
+| `datas/2026年秋季学期课表-研究所.xlsx` | 研究所秋季排课数据 |
+| `datas/2026年秋季学期课表-基地.xlsx` | 培养基地秋季排课数据 |
 | `2026-2027学年秋季和春季开课计划表0903.xlsx` | 春季学期开课计划数据（官网 0903 更新版） |
 
 秋季学期以官网正式排课表为准；春季学期沿用开课计划，暂无具体排课信息。
@@ -32,7 +35,18 @@
 
 ## 使用
 
-直接用浏览器打开 `index.html` 即可。
+- **在线版**（推荐）：直接访问 GitHub Pages，或本地起服务后打开：`python3 -m http.server`，浏览器访问 `http://localhost:8000/`。
+- **本地双击 index.html（file://）**：因浏览器安全限制读不到同目录 `presets/*.json`，页面会提示——可点「从本地加载 .json 数据文件」手动选择，或改用上面的本地服务器方式。
+
+## 工具与数据分离
+
+页面本身只含工具逻辑（~70KB），课程数据外置在 `presets/`，启动时按需加载：
+
+- `presets/manifest.json`：预设清单
+- `presets/2026秋-京内.json / -京外.json / -研究所.json / -基地.json`：国科大 2026 秋季四份预设（京内 2079 / 京外 449 / 研究所 392 / 基地 59 门）
+- 页面「🗂 数据集」抽屉可勾选组合预设；也可用「从本地加载 .json 数据文件」接入其他学期/其他来源数据
+
+数据重新生成：`cd build && ./build.sh`（读取 `datas/*.xlsx` 官网导出与开课计划，产出 presets 与页面）。
 
 ## 部署到 GitHub Pages
 
@@ -44,7 +58,7 @@
 
 ## 更新数据（重新生成页面）
 
-替换 `build/` 同级目录下的两份 Excel 后运行：
+将更新后的官网导出放入 `datas/`（课表 xlsx）与项目根目录（开课计划 xlsx）后运行：
 
 ```bash
 cd build && ./build.sh
@@ -52,8 +66,9 @@ cd build && ./build.sh
 
 生成流程：
 
-1. `build_data.py`：解析秋季排课表 + 官网 0903 版开课计划的春季数据，合并为 `courses_merged.json`（学科归类沿用 `build/legacy_plan_0828.json` 基准）
-2. `inject.py`：将数据注入 `template.html`，输出最终页面 `index.html`
+1. `build_data.py`：解析 datas 京内课表 + 官网春季开课计划，合并为 `courses_merged.json`
+2. `build_presets.py`：由 datas 四份课表与开课计划生成 `presets/*.json` + `manifest.json`
+3. 拷贝 `template.html` 为 `index.html`（页面不内嵌课程数据）
 
 ## 说明
 
@@ -65,12 +80,14 @@ cd build && ./build.sh
 ## 文件结构
 
 ```
-index.html                          生成后的选课页面（GitHub Pages 站点入口 / 直接打开）
-2026年秋季学期课表.xlsx               秋季排课数据源
-2026-2027学年秋季和春季开课计划表0903.xlsx   开课计划数据源（春季，官网 0903 更新）
+index.html                          选课页面 = 纯工具逻辑（数据外置）
+presets/                            课程数据集（manifest + 四份预设 json）
+2026-2027学年秋季和春季开课计划表0903.xlsx   开课计划数据源（春季）
+datas/                              官网导出课表（京内/京外/研究所/基地）
 build/
-  build.sh             一键重新生成页面
-  build_data.py        数据合并脚本
-  inject.py            页面生成脚本
+  build.sh             一键重新生成（数据合并 → 预设 → 页面）
+  build_data.py        课程数据合并（京内+春季）
+  build_presets.py     预设生成（datas → presets）
+  legacy_plan_0828.json  学科归类基准
   template.html        页面模板
 ```

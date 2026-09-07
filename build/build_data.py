@@ -3,7 +3,7 @@
 import openpyxl, json, re
 from collections import Counter, defaultdict
 
-NEW_FILE = '../2026年秋季学期课表.xlsx'
+NEW_FILE = '../datas/2026年秋季学期课表-京内学院.xlsx'
 LEGACY_FILE = 'legacy_plan_0828.json'   # 0828 开课计划派生基准（学科归类/校区核对）
 SPRING_FILE = '../2026-2027学年秋季和春季开课计划表0903.xlsx'  # 官网 0903 更新版
 OUT = 'courses_merged.json'
