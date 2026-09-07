@@ -1,16 +1,16 @@
 [
  {
   "id": "2026秋-京内",
-  "name": "2026秋季 · 京内学院",
+  "name": "京内学院 · 2026秋 / 2027春",
   "file": "2026秋-京内.json",
   "default": true,
-  "count": 2079,
+  "count": 3559,
   "withSchedule": 2079,
   "withSyllabus": 2078
  },
  {
   "id": "2026秋-京外",
-  "name": "2026秋季 · 京外学院",
+  "name": "京外学院 · 2026秋",
   "file": "2026秋-京外.json",
   "default": false,
   "count": 449,
@@ -19,7 +19,7 @@
  },
  {
   "id": "2026秋-研究所",
-  "name": "2026秋季 · 研究所",
+  "name": "研究所 · 2026秋",
   "file": "2026秋-研究所.json",
   "default": false,
   "count": 392,
@@ -28,7 +28,7 @@
  },
  {
   "id": "2026秋-基地",
-  "name": "2026秋季 · 培养基地",
+  "name": "培养基地 · 2026秋",
   "file": "2026秋-基地.json",
   "default": false,
   "count": 59,

@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="light" />
-<title>UCAS 2026–2027 选课浏览器 · 模拟课程表</title>
+<title>UCAS选课模拟器</title>
 <style>
 :root{
   --bg:#f4f7fb;--panel:#ffffff;--panel2:#f8fafc;--ink:#172033;--muted:#687386;
@@ -91,7 +91,7 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 
 /* ============ 抽屉 / 详情 ============ */
 .drawer-mask{position:fixed;inset:0;background:rgba(15,26,48,.28);z-index:50;opacity:0;pointer-events:none;transition:.2s}.drawer-mask.open{opacity:1;pointer-events:auto}
-.drawer{position:fixed;right:0;top:0;height:100vh;width:min(560px,94vw);background:white;z-index:51;transform:translateX(102%);transition:.22s ease;box-shadow:-22px 0 55px rgba(20,35,60,.17);display:flex;flex-direction:column}.drawer.open{transform:none}
+.drawer{position:fixed;right:0;top:0;height:100vh;width:min(560px,94vw);background:white;z-index:51;transform:translateX(102%);transition:.22s ease;box-shadow:none;display:flex;flex-direction:column}.drawer.open{transform:none;box-shadow:-22px 0 55px rgba(20,35,60,.17)}
 .drawer-head{padding:21px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.drawer-head h2{margin:0;font-size:19px}.drawer-head p{margin:4px 0 0;color:#7d899b;font-size:12px}
 .close{border:0;background:#f2f5f9;border-radius:9px;width:34px;height:34px;cursor:pointer;font-size:20px;color:#657187}
 .selected-list{overflow:auto;flex:1;padding:10px 14px}
@@ -137,31 +137,99 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}#toast.warn{background:#9a3a2b}
 @media(max-width:1100px){.filters{grid-template-columns:repeat(3,1fr)}.filter-top{grid-template-columns:1.4fr 1fr auto}.stats{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:760px){.wrap{padding:12px 12px 35px}.hero{padding:22px 20px;border-radius:18px}.hero-top{display:block}.hero-btns{margin-top:17px;flex-direction:row}.pick-btn{margin-top:0}.hero h1{font-size:24px}.stats{grid-template-columns:repeat(2,1fr)}.filter-panel{position:relative;top:auto;padding:13px}.filter-top{grid-template-columns:1fr}.filters{grid-template-columns:repeat(2,1fr)}.clear{width:100%}.table-scroll{max-height:none}.result-head{align-items:flex-end}.result-sub{max-width:60vw}.head-actions{flex-direction:column;align-items:stretch}.note{font-size:10px}.dd-grid{grid-template-columns:1fr}.timetable-panel{padding:12px}}
+
+/* 数据入口优先，选课操作紧邻课程结果。 */
+[hidden]{display:none!important}
+.hero{padding:24px 28px}
+.hero h1{margin:0 0 8px}
+.hero p{max-width:960px;opacity:1;color:#dce5f5}
+.hero .hero-purpose{color:white;font-size:15px}
+.hero .data-intro{margin-top:12px;font-size:13px;line-height:1.8}
+.data-intro strong{font-weight:600;color:white}
+.hero-link{border:0;background:transparent;color:#dce5f5;padding:8px;cursor:pointer;white-space:nowrap;text-decoration:underline;text-underline-offset:4px;min-height:44px}
+.dataset-entry{position:relative;z-index:1;margin-top:20px}
+.dataset-actions{display:flex;gap:12px;flex-wrap:wrap}
+.dataset-primary{display:flex;gap:16px;align-items:center;justify-content:center;background:white;color:var(--navy);border:1px solid white;border-radius:12px;padding:12px 20px;font-weight:750;cursor:pointer;min-height:48px}
+.dataset-primary span{font-size:12px;font-weight:500;color:#536583}
+.dataset-primary:hover{background:#edf2ff}
+.hero .import-hint{font-size:12px;margin-top:8px}
+.dataset-summary{position:relative;z-index:1;margin-top:16px;padding-top:12px;border-top:1px solid #ffffff30;color:#dce5f5;font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+.stats{display:flex;flex-wrap:wrap;gap:12px 28px;margin:16px 4px 0;max-width:none}
+.stat{display:flex;gap:8px;align-items:baseline;background:none;border:0;border-radius:0;padding:0;backdrop-filter:none}
+.stat strong{font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+.stat span{color:#59667c;opacity:1}
+.result-head{flex-wrap:wrap;align-items:center}
+.head-actions{flex-wrap:wrap}
+.selected-action{background:var(--navy);color:white;border-color:var(--navy)}
+.selected-action #heroSelected{margin-left:6px;font-weight:700}
+.conf-badge{margin-left:6px;background:#f6d0c8;color:#8f2d20;border-radius:6px;padding:1px 5px}
+.dataset-help{color:#59667c;line-height:1.8;font-size:13px;margin:0 2px 12px}
+.import-title{margin-top:28px;font-size:15px}
+.preset-item{min-height:56px;flex-wrap:wrap}
+.pi-meta{color:#59667c}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.hero button:focus-visible{outline-color:white}
+@media(max-width:760px){
+  .hero{padding:20px}.hero-top{display:flex;gap:8px}.hero h1{font-size:24px}
+  .hero-link{font-size:12px;padding:4px;min-height:44px}
+  .dataset-actions{display:grid;grid-template-columns:1fr}.dataset-actions button{min-height:48px}
+  .stats{gap:8px 20px}.stat strong{font-size:16px}
+  .result-head{align-items:stretch;gap:12px}.result-sub{max-width:none}
+  .head-actions{flex-direction:row;align-items:center;gap:8px;width:100%}
+  .viewseg{width:100%}.viewseg button{flex:1;min-height:40px}.toggle{min-height:44px}
+  .pi-meta{width:100%;margin-left:26px}.filter-panel{margin-top:12px}
+}
+
+.filter-hint{margin:12px 3px 0;color:#59667c;font-size:12px;line-height:1.6}
+.multi-filter{position:relative;min-width:0}
+.multi-filter summary{display:flex;align-items:center;gap:8px;min-height:42px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:white;color:#38445a;cursor:pointer;list-style:none}
+.multi-filter summary::-webkit-details-marker{display:none}
+.multi-filter summary::after{content:'⌄';margin-left:auto;flex:none}
+.multi-filter summary span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.multi-filter summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.multi-filter.has-selection summary{background:var(--blueSoft);border-color:#a9b8e7;color:#264688}
+.multi-filter[open]{z-index:25}
+.multi-panel{position:absolute;top:calc(100% + 6px);left:0;width:100%;min-width:0;background:white;border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:0 10px 24px rgba(26,45,82,.14)}
+.multi-search{width:100%;min-width:0;height:38px;padding:8px;border:1px solid var(--line);border-radius:8px}
+.multi-clear{border:0;background:none;color:#3152aa;cursor:pointer;padding:10px 0;min-height:40px;font-size:12px}
+.multi-options{max-height:240px;overflow:auto;overscroll-behavior:contain}
+.field .multi-option{display:flex;align-items:center;gap:8px;min-height:40px;margin:0;padding:6px 4px;color:#38445a;font-size:13px;cursor:pointer}
+.multi-option:hover{background:var(--panel2)}
+.multi-option input{width:16px;height:16px;flex:none;accent-color:var(--blue)}
+.multi-option span{overflow-wrap:anywhere}.multi-option small{margin-left:auto;color:#59667c}
+@media(max-width:760px){.multi-panel{padding:8px}.field .multi-option{min-height:44px}.multi-options{max-height:220px}.multi-filter summary{min-height:44px}}
+
+.filter-top{grid-template-columns:minmax(0,1fr) auto}.filters{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:760px){.filter-top{grid-template-columns:1fr}.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters>.field:first-child{grid-column:1 / -1}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <section class="hero">
+  <section class="hero" aria-labelledby="pageTitle">
     <div class="hero-top">
       <div>
-        <div class="eyebrow">UCAS · COURSE EXPLORER</div>
-        <h1>2026–2027 学年选课浏览器</h1>
-        <p>秋季学期已接入官网正式排课数据（上课时间、教室、任课教师、选课人数），支持筛选浏览、加入已选、模拟课程表与时间冲突自动检测。春季学期沿用开课计划数据。</p>
+        <h1 id="pageTitle">UCAS选课模拟器</h1>
+        <p class="hero-purpose">选择课程数据，筛选心仪课程，预览课表与时间冲突。</p>
       </div>
-      <div class="hero-btns">
-        <button class="pick-btn" id="openSelected">★ 已选课程 <span class="badge-num" id="heroSelected">0</span><span class="conf-badge" id="heroConflict" hidden>0</span></button>
-        <button class="pick-btn" id="openTimetable">📅 模拟课程表</button>
-        <button class="pick-btn" id="openChangelog">📜 更新日志</button>
-        <button class="pick-btn" id="openDataset">🗂 数据集</button>
+      <button class="hero-link" id="openChangelog">更新日志</button>
+    </div>
+    <p class="data-intro">目前预设数据为国科大 SEP 选课系统 <strong>2026年秋季开课数据（包含完整开班信息）</strong>，和 <strong>2027年春季计划开课数据（无完整开班信息）</strong>。</p>
+    <p class="data-intro">四个预设数据集分别对应 SEP 选课系统的四个地区：京内学院、京外学院、研究所、培养基地，可多选组合。春季计划随京内学院预设提供。</p>
+    <div class="dataset-entry">
+      <div class="dataset-actions">
+        <button class="dataset-primary" id="openDataset" aria-controls="datasetDrawer">选择预设数据集 <span>4 个地区</span></button>
+        <button class="pick-btn" id="importDataset">导入课程数据</button>
       </div>
+      <p class="import-hint">其他学校也可导入符合格式的 JSON 课程数据。</p>
     </div>
-    <div class="stats">
-      <div class="stat"><strong id="statTotal">3555</strong><span>课程记录</span></div>
-      <div class="stat"><strong id="statCollege">38</strong><span>开课院系</span></div>
-      <div class="stat"><strong id="statFirst">79</strong><span>一级学科分类</span></div>
-      <div class="stat"><strong id="statCat">9</strong><span>课程类别</span></div>
-    </div>
+    <div class="dataset-summary" role="status" aria-live="polite"><span id="datasetStatus">正在加载预设数据…</span></div>
   </section>
+  <div class="stats" aria-label="当前数据统计">
+    <div class="stat"><strong id="statTotal">0</strong><span>课程记录</span></div>
+    <div class="stat"><strong id="statCollege">0</strong><span>开课院系</span></div>
+    <div class="stat"><strong id="statFirst">0</strong><span>一级学科分类</span></div>
+    <div class="stat"><strong id="statCat">0</strong><span>课程类别</span></div>
+  </div>
 
   <div id="dataBanner" class="data-banner" hidden>⚠️ <b id="dataBannerMsg">数据加载失败</b> <span class="db-actions"><button id="bannerReload">重试</button></span></div>
 
@@ -169,22 +237,21 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
     <div class="filter-top">
       <div class="search">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
-        <input id="search" placeholder="搜索课程名 / 编码 / 学院 / 学科 / 教师 / 教室……" autocomplete="off" />
-      </div>
-      <div class="segments" id="semesterSeg">
-        <button data-v="" class="active">全部学期</button><button data-v="秋季">秋季</button><button data-v="春季">春季</button>
+        <input id="search" aria-label="搜索课程" placeholder="搜索课程名 / 编码 / 学院 / 学科 / 教师 / 教室……" autocomplete="off" />
       </div>
       <button class="clear" id="clearFilters">清空筛选</button>
     </div>
+    <p class="filter-hint">以下条件可多选：同项满足任一选项，不同项同时满足。</p>
     <div class="filters">
-      <div class="field"><label for="college">开课院系</label><select id="college"></select></div>
-      <div class="field"><label for="first">一级学科 / 专业类别</label><select id="first"></select></div>
-      <div class="field"><label for="second">二级学科 / 专业</label><select id="second"></select></div>
-      <div class="field"><label for="category">课程类别</label><select id="category"></select></div>
-      <div class="field"><label for="campus">开课校区</label><select id="campus"></select></div>
-      <div class="field"><label for="credits">学分</label><select id="credits"></select></div>
-      <div class="field"><label for="exam">考试方式</label><select id="exam"></select></div>
-      <div class="field"><label for="day">星期</label><select id="day"></select></div>
+      <div class="field"><label id="semesterLabel">开课学期</label><details class="multi-filter" id="semester"><summary aria-labelledby="semesterLabel semesterSummary"><span id="semesterSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索学期" placeholder="搜索学期"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+      <div class="field"><label id="collegeLabel">开课院系</label><details class="multi-filter" id="college"><summary aria-labelledby="collegeLabel collegeSummary"><span id="collegeSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+      <div class="field"><label id="firstLabel">一级学科 / 专业类别</label><details class="multi-filter" id="first"><summary aria-labelledby="firstLabel firstSummary"><span id="firstSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+      <div class="field"><label id="secondLabel">二级学科 / 专业</label><details class="multi-filter" id="second"><summary aria-labelledby="secondLabel secondSummary"><span id="secondSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+      <div class="field"><label id="categoryLabel">课程类别</label><details class="multi-filter" id="category"><summary aria-labelledby="categoryLabel categorySummary"><span id="categorySummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+      <div class="field"><label id="campusLabel">开课校区</label><details class="multi-filter" id="campus"><summary aria-labelledby="campusLabel campusSummary"><span id="campusSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+      <div class="field"><label id="creditsLabel">学分</label><details class="multi-filter" id="credits"><summary aria-labelledby="creditsLabel creditsSummary"><span id="creditsSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+      <div class="field"><label id="examLabel">考试方式</label><details class="multi-filter" id="exam"><summary aria-labelledby="examLabel examSummary"><span id="examSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+      <div class="field"><label id="dayLabel">星期</label><details class="multi-filter" id="day"><summary aria-labelledby="dayLabel daySummary"><span id="daySummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
     </div>
   </section>
 
@@ -194,8 +261,9 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
       <div class="viewseg" id="viewSeg">
         <button data-v="list" class="active">📋 课程列表</button><button data-v="timetable">📅 模拟课程表</button>
       </div>
+      <button class="toggle selected-action" id="openSelected">已选课程 <span id="heroSelected">0</span><span class="conf-badge" id="heroConflict" hidden>0</span></button>
       <button class="toggle" id="onlySelected">☆ 仅看已选</button>
-      <button class="toggle" id="onlyNoConflict" title="仅显示与已选课程上课时间不冲突的课程">⚡ 不与已选冲突</button>
+      <button class="toggle" id="onlyNoConflict" title="仅显示与已选课程上课时间不冲突的课程">不看冲突</button>
     </div>
   </div>
 
@@ -285,7 +353,18 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
   <div class="drawer-head"><div><h2>更新日志</h2><p>UCAS 选课浏览器 · 版本记录</p></div><button class="close" id="closeChangelog">×</button></div>
   <div class="changelog-list">
     <div class="cl-item">
-      <div class="cl-head"><span class="cl-ver latest">v3.0</span><span class="cl-date">2026-09-07</span></div>
+      <div class="cl-head"><span class="cl-ver latest">v3.1</span><span class="cl-date">2026-09-07</span></div>
+      <ul>
+        <li>页面更名为「UCAS选课模拟器」，明确国科大 SEP 2026 年秋季完整开班数据与 2027 年春季计划数据的来源及覆盖范围。</li>
+        <li>预设选择与数据导入前置，显示当前数据来源；精简课程统计，将已选课程与课表入口集中到课程操作区，优化手机布局。</li>
+        <li>京内预设恢复 1480 门春季计划；保留同编码的不同开班记录，修复切换数据时已选课程错位与空数据统计未清零的问题。</li>
+        <li>九项筛选支持多选与选项搜索，同项取并集、不同项取交集；「不与已选冲突」按钮简化为「不看冲突」。</li>
+        <li>移除固定学期切换按钮，新增独立的「开课学期」多选筛选，随数据集显示年份及春、夏、秋等学期；不同学期的课程不再误报时间冲突。</li>
+        <li>补充 JSON 导入格式说明、示例下载与格式错误提示。</li>
+      </ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v3.0</span><span class="cl-date">2026-09-07</span></div>
       <ul><li>工具与数据分离：课程数据外置到 presets/，页面从 1.9MB 瘦身到 ~70KB</li><li>国科大预设：京内 / 京外 / 研究所 / 基地四份可勾选组合（共 2979 门秋季排课课）</li><li>支持从本地加载 .json 数据文件，可接入其他学期 / 其他来源的课程数据</li></ul>
     </div>
     <div class="cl-item">
@@ -348,11 +427,15 @@ button,input,select{font:inherit}.wrap{max-width:1540px;margin:auto;padding:24px
 </aside>
 
 <aside class="drawer" id="datasetDrawer">
-  <div class="drawer-head"><div><h2>课程数据集</h2><p>工具与数据分离 · 勾选预设组合使用</p></div><button class="close" id="closeDataset">×</button></div>
+  <div class="drawer-head"><div><h2>课程数据集</h2><p>选择地区后自动加载，可多选组合</p></div><button class="close" id="closeDataset" aria-label="关闭数据集面板">×</button></div>
   <div class="selected-list ds-body">
-    <div class="ds-title">国科大预设（可多选组合）</div>
+    <div class="ds-title">国科大 SEP · 四个地区</div>
+    <p class="dataset-help">秋季为 2026 年完整开班数据；京内学院另含 2027 年春季计划，无完整开班信息。</p>
     <div id="presetList" class="preset-list"></div>
-    <button class="export export2 ds-filebtn" id="pickPresetFile">📂 从本地加载 .json 数据文件</button>
+    <h3 class="ds-title import-title">导入其他课程数据</h3>
+    <p class="dataset-help">支持其他学校或学期的 JSON 数据。导入会替换当前课程数据；重新选择预设即可切回。导入文件仅在当前页面使用。</p>
+    <button class="export export2 ds-filebtn" id="pickPresetFile">选择 JSON 数据文件</button>
+    <p class="dataset-help">文件格式：课程对象组成的 JSON 数组。<a href="README.md#导入其他学校的数据" target="_blank" rel="noopener">查看字段说明</a> · <a href="presets/2026秋-基地.json" download>下载示例数据</a></p>
     <input type="file" id="presetFileInput" accept=".json,application/json" multiple hidden>
     <div class="note">线上版会自动加载勾选的预设。若你是<b>双击 index.html 本地打开</b>（file://），浏览器不允许读取同目录 JSON——请改用本地服务器（<code>python3 -m http.server</code>）或访问在线版；也可点上方按钮手动选择 <code>presets/*.json</code> 文件加载。</div>
   </div>
@@ -367,17 +450,21 @@ let COURSES=[];                  // 合并后的课程记录（含 id/ds/syl）
 let MANIFEST=[];                 // presets/manifest.json
 const activePresets=new Set(JSON.parse(localStorage.getItem('ucas-active-presets')||'[]'));
 function setHeroStats(){
-  if(!COURSES.length)return;
+
   $('statTotal').textContent=COURSES.length;
   $('statCollege').textContent=new Set(COURSES.map(c=>c.college)).size;
   $('statFirst').textContent=new Set(COURSES.map(c=>c.first)).size;
   $('statCat').textContent=new Set(COURSES.map(c=>c.category)).size;
 }
 function fillSyllabusMap(){Object.keys(SYLLABI_URLS).forEach(k=>delete SYLLABI_URLS[k]);COURSES.forEach(c=>{if(c.syl)SYLLABI_URLS[c.code]=c.syl});}
+function courseIdentity(c){const {id,...record}=c;return JSON.stringify(record)}
 function rebuildCourses(rowsList){
+  const previous=COURSES.length?new Set(COURSES.filter(c=>selected.has(c.id)).map(courseIdentity)):null;
   COURSES=[];let nid=1;const seen=new Set();
-  rowsList.forEach(rows=>rows.forEach(r=>{const code=r.code;if(!code||seen.has(code))return;seen.add(code);COURSES.push(Object.assign({},r,{id:nid++}));}));
-  fillSyllabusMap();pruneSelected();render();
+  rowsList.forEach(rows=>rows.forEach(r=>{const code=r.code;const key=courseIdentity(r);if(!code||seen.has(key))return;seen.add(key);COURSES.push(Object.assign({},r,{id:nid++}));}));
+  state.semester=state.semester.filter(term=>COURSES.some(c=>c.semester===term));
+  if(previous){selected=new Set(COURSES.filter(c=>previous.has(courseIdentity(c))).map(c=>c.id));saveSelected();}
+  fillSyllabusMap();pruneSelected();render();updateSelectedUI();
 }
 function pruneSelected(){
   const ids=new Set(COURSES.map(c=>c.id));let ch=false;
@@ -387,23 +474,25 @@ function pruneSelected(){
 async function fetchJSON(p){const r=await fetch(p);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
 async function boot(){
   try{MANIFEST=await fetchJSON('presets/manifest.json');}
-  catch(e){const b=$('dataBanner');if(b)b.hidden=false;render();return;}
+  catch(e){$('dataBanner').hidden=false;$('datasetStatus').textContent='预设加载失败，可重试或导入本地数据';render();return;}
   if(!activePresets.size)MANIFEST.filter(p=>p.default).forEach(p=>activePresets.add(p.id));
   await applyPresets();
 }
 async function applyPresets(){
-  const rowsList=[];let fails=0;
-  for(const p of MANIFEST){if(!activePresets.has(p.id))continue;try{rowsList.push(await fetchJSON('presets/'+p.file));}catch(e){fails++;}}
+  $('datasetStatus').textContent='正在加载所选预设…';
+  const rowsList=[];const loaded=[];let fails=0;
+  for(const p of MANIFEST){if(!activePresets.has(p.id))continue;try{rowsList.push(await fetchJSON('presets/'+p.file));loaded.push(p.name);}catch(e){fails++;}}
   localStorage.setItem('ucas-active-presets',JSON.stringify([...activePresets]));
   rebuildCourses(rowsList);
-  if(fails){const b=$('dataBanner');if(b)b.hidden=false;}
+  $('dataBanner').hidden=!fails;
+  $('datasetStatus').textContent=(loaded.length?'当前预设：'+loaded.join('、'):'尚未选择数据集，请选择预设或导入课程数据')+(fails?' · 部分数据加载失败':'');
   renderDatasetUI();
 }
 function renderDatasetUI(){
   const el=$('presetList');if(!el)return;
   el.innerHTML=MANIFEST.length?MANIFEST.map(p=>{
     const checked=activePresets.has(p.id)?'checked':'';
-    return `<label class="preset-item"><input type="checkbox" data-pid="${esc(p.id)}" ${checked}><span class="pi-name">${esc(p.name)}</span><span class="pi-meta">${p.count} 门 · 排课 ${p.withSchedule}</span></label>`;
+    return `<label class="preset-item"><input type="checkbox" data-pid="${esc(p.id)}" ${checked}><span class="pi-name">${esc(p.name)}</span><span class="pi-meta">${p.count} 门 · ${p.withSchedule} 门有排课</span></label>`;
   }).join(''):'<div class="empty" style="padding:16px"><strong>未找到预设清单</strong>请确认 presets/manifest.json 存在。</div>';
 }
 const $=id=>document.getElementById(id);
@@ -411,12 +500,18 @@ const DAY_CN=['','周一','周二','周三','周四','周五','周六','周日']
 const PERIOD_START={1:'08:00',2:'08:55',3:'09:50',4:'10:45',5:'13:30',6:'14:25',7:'15:20',8:'16:15',9:'17:10',10:'18:30',11:'19:25',12:'20:20',13:'21:15'};
 const COLORS=['#3f66cf','#14856e','#c97b22','#7a4fb3','#c0392b','#0f8a9d','#8a6d1c','#4e8a3a','#8b4d7a','#b5552a','#3f7d8f','#6d7f2e'];
 const CAL={autumn:{start:[2026,7,31],weeks:20},spring:{start:[2027,1,22],weeks:16}};
-function activeCal(){return state.semester==='春季'?CAL.spring:CAL.autumn}
-function weekDates(cal,week){const b=cal.start;const base=new Date(b[0],b[1],b[2]+(week-1)*7);return [...Array(7)].map((_,i)=>new Date(b[0],b[1],b[2]+(week-1)*7+i))}
+function activeCal(){
+  const terms=state.semester.length?state.semester:[...new Set(selectedCourses().map(c=>c.semester))];
+  if(terms.length===1&&terms[0]==='2026年秋季学期')return CAL.autumn;
+  if(terms.length===1&&terms[0]==='2027年春季学期')return CAL.spring;
+  const weeks=COURSES.filter(c=>!state.semester.length||state.semester.includes(c.semester)).flatMap(c=>(c.slots||[]).flatMap(s=>[...parseWeeks(s.w)]));
+  return {start:null,weeks:Math.max(1,...weeks)};
+}
+function weekDates(cal,week){if(!cal.start)return null;const b=cal.start;const base=new Date(b[0],b[1],b[2]+(week-1)*7);return [...Array(7)].map((_,i)=>new Date(b[0],b[1],b[2]+(week-1)*7+i))}
 function dFmt(d){return (d.getMonth()+1)+'/'+d.getDate()}
 function mdFmt(d){return (d.getMonth()+1)+'月'+d.getDate()+'日'}
 
-const state={search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',day:'',noConflict:false,page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',ttMode:'overview',week:1,showNoSched:true};
+const state={search:'',semester:[],college:[],first:[],second:[],category:[],campus:[],credits:[],exam:[],day:[],noConflict:false,page:1,pageSize:50,sort:'college',dir:1,onlySelected:false,view:'list',ttMode:'overview',week:1,showNoSched:true};
 let selected=new Set((JSON.parse(localStorage.getItem('ucas-course-selected')||'[]')||[]).map(Number));
 if(!localStorage.getItem('ucas-course-selected')){
   const legacy=JSON.parse(localStorage.getItem('ucas-course-selected-codes')||'[]');
@@ -428,8 +523,8 @@ if(!localStorage.getItem('ucas-course-selected')){
   }
 }
 const collator=new Intl.Collator('zh-CN',{numeric:true,sensitivity:'base'});
-const fields=['college','first','second','category','campus','credits','exam','day'];
-const labels={college:'全部院系',first:'全部一级学科',second:'全部二级学科',category:'全部课程类别',campus:'全部校区',credits:'全部学分',exam:'全部考试方式',day:'全部星期'};
+const fields=['semester','college','first','second','category','campus','credits','exam','day'];
+const labels={semester:'全部学期',college:'全部院系',first:'全部一级学科',second:'全部二级学科',category:'全部课程类别',campus:'全部校区',credits:'全部学分',exam:'全部考试方式',day:'全部星期'};
 
 function norm(v){return (v??'').toString().trim().toLowerCase()}
 function teacherText(c){return (c.main||c.chief||c.convener||'').trim()||(c.ta||'')}
@@ -441,24 +536,36 @@ function match(c,exclude){
   if(state.onlySelected && !selected.has(c.id)) return false;
   if(state.noConflict && !selected.has(c.id) && conflictsWithSelected(c)) return false;
   if(state.search){const q=norm(state.search); if(!searchText(c).includes(q))return false}
-  if(exclude!=='semester' && state.semester && c.semester!==state.semester)return false;
-  if(exclude!=='day' && state.day && !(c.slots||[]).some(s=>String(s.day)===state.day))return false;
-  for(const f of ['college','first','second','category','campus','exam']) if(exclude!==f && state[f] && c[f]!==state[f])return false;
-  if(exclude!=='credits' && state.credits && String(c.credits)!==state.credits)return false;
+  if(exclude!=='semester' && state.semester.length && !state.semester.includes(c.semester))return false;
+  if(exclude!=='day' && state.day.length && !(c.slots||[]).some(s=>state.day.includes(String(s.day))))return false;
+  for(const f of ['college','first','second','category','campus','exam']) if(exclude!==f && state[f].length && !state[f].includes(c[f]))return false;
+  if(exclude!=='credits' && state.credits.length && !state.credits.includes(String(c.credits)))return false;
   return true;
 }
 function filterData(exclude){return COURSES.filter(c=>match(c,exclude))}
 function optionText(value,count){return `${value} · ${count}`}
 function fillSelect(field){
-  const el=$(field), current=state[field]; const counts=new Map();
-  filterData(field).forEach(c=>{
-    if(field==='day'){(c.slots||[]).forEach(s=>{const v=String(s.day);counts.set(v,(counts.get(v)||0)+1)});return}
-    const v=field==='credits'?String(c.credits):c[field]; if(field==='exam'&&!v)return; counts.set(v,(counts.get(v)||0)+1)});
-  const vals=[...counts.keys()].sort((a,b)=>(field==='credits'||field==='day')?(Number(a)-Number(b)):collator.compare(a,b));
-  el.innerHTML=''; const all=document.createElement('option'); all.value=''; all.textContent=`${labels[field]} · ${filterData(field).length}`; el.appendChild(all);
-  vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=optionText(field==='day'?DAY_CN[Number(v)]:v,counts.get(v));el.appendChild(o)});
-  if(vals.includes(current))el.value=current; else {state[field]='';el.value=''}
+  const el=$(field), current=state[field], counts=new Map();
+  (field==='semester'?COURSES:filterData(field)).forEach(c=>{
+    const values=field==='day'?[...new Set((c.slots||[]).map(s=>String(s.day)))]:[field==='credits'?String(c.credits):c[field]];
+    values.filter(v=>v!=null&&v!=='').forEach(v=>counts.set(v,(counts.get(v)||0)+1));
+  });
+  const vals=[...new Set([...counts.keys(),...current])].sort((a,b)=>(field==='credits'||field==='day')?(Number(a)-Number(b)):collator.compare(a,b));
+  const display=v=>field==='day'?DAY_CN[Number(v)]:v;
+  const summary=current.length?current.map(display).join('、'):labels[field];
+  $(field+'Summary').textContent=summary;
+  el.querySelector('summary').title=summary;
+  el.classList.toggle('has-selection',current.length>0);
+  const focused=el.contains(document.activeElement)?document.activeElement.value:null;
+  el.querySelector('.multi-options').innerHTML=vals.length?vals.map(v=>`<label class="multi-option"><input type="checkbox" value="${esc(v)}" ${current.includes(v)?'checked':''}><span>${esc(display(v))}</span><small>${counts.get(v)||0}</small></label>`).join(''):'<p class="dataset-help">暂无可选项，试试放宽其他筛选。</p>';
+  filterOptions(el);
+  if(focused!==null)[...el.querySelectorAll('input[type="checkbox"]')].find(x=>x.value===focused)?.focus({preventScroll:true});
 }
+function filterOptions(el){
+  const query=norm(el.querySelector('.multi-search').value);
+  el.querySelectorAll('.multi-option').forEach(row=>{row.hidden=!norm(row.querySelector('span').textContent).includes(query)});
+}
+
 function badgeClass(cat){if(cat.includes('公共'))return'b-public';if(cat.includes('核心'))return'b-core';if(cat==='专业课')return'b-pro';if(cat.includes('研讨'))return'b-seminar';if(cat.includes('实验')||cat.includes('实践'))return'b-lab';return'b-other'}
 function fmtNum(v){return Number(v)%1===0?String(Number(v)):String(v)}
 function seatOf(c){return (c.capacity==null||c.capacity==='')?null:c.capacity-(c.enrolled||0)}
@@ -506,13 +613,13 @@ function renderList(){
     <td class="teacher">${teacherText(c)?esc(teacherText(c)):'<span class="seat-text">—</span>'}</td>
     <td class="method">${esc(c.exam||'—')}</td><td class="method">${esc(c.teach||'—')}</td>
     <td style="min-width:170px">${slotChips(c)}</td>
-    <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="level">${esc(c.level||'—')}</td><td class="nowrap">${esc(c.campus)}</td><td class="nowrap semester ${c.semester==='秋季'?'autumn':'spring'}">${esc(c.semester)}</td>
+    <td><span class="badge ${badgeClass(c.category)}">${esc(c.category)}</span></td><td class="level">${esc(c.level||'—')}</td><td class="nowrap">${esc(c.campus)}</td><td class="nowrap semester ${c.semester.includes('秋季')?'autumn':'spring'}">${esc(c.semester)}</td>
     <td class="num">${seatHTML(c)}</td><td class="num">${fmtNum(c.hours)}</td>
     <td class="college">${esc(c.college)}</td><td class="subj">${esc(c.first)}</td><td class="subj">${esc(c.second)}</td><td class="code">${SYLLABI_URLS[c.code]?`<a href="${SYLLABI_URLS[c.code]}" target="_blank" rel="noopener" title="查看课程大纲">${esc(c.code)}</a>`:esc(c.code)}</td></tr>`;
   }).join('');
   $('empty').hidden=total!==0; document.querySelector('#listView table').style.display=total?'table':'none';
   $('rangeText').textContent=total?`显示 ${start+1}–${end} / ${total}`:'0 条结果'; $('pageNow').textContent=`${state.page} / ${pages}`; $('prev').disabled=state.page<=1; $('next').disabled=state.page>=pages;
-  $('onlySelected').classList.toggle('active',state.onlySelected); $('onlySelected').textContent=state.onlySelected?'★ 正在仅看已选':'☆ 仅看已选'; $('onlyNoConflict').classList.toggle('active',state.noConflict); $('onlyNoConflict').textContent=state.noConflict?'✓ 正在筛选不与已选冲突':'⚡ 不与已选冲突';
+  $('onlySelected').classList.toggle('active',state.onlySelected); $('onlySelected').textContent=state.onlySelected?'★ 正在仅看已选':'☆ 仅看已选'; $('onlyNoConflict').classList.toggle('active',state.noConflict);$('onlyNoConflict').setAttribute('aria-pressed',String(state.noConflict)); $('onlyNoConflict').textContent='不看冲突';
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
@@ -535,6 +642,7 @@ function computeConflicts(picks,week){
   const seen=new Set(),out=[];
   for(let i=0;i<picks.length;i++)for(const sa of (picks[i].slots||[])){
     for(let j=i+1;j<picks.length;j++)for(const sb of (picks[j].slots||[])){
+      if(picks[i].semester!==picks[j].semester)continue;
       if(sa.day!==sb.day)continue;
       if(sa.start>sb.end||sb.start>sa.end)continue;
       const wa=parseWeeks(sa.w),wb=parseWeeks(sb.w);
@@ -550,7 +658,7 @@ function computeConflicts(picks,week){
 }
 function conflictsWithSelected(c){
   for(const s of selectedCourses()){
-    if(s.id===c.id)continue;
+    if(s.id===c.id||s.semester!==c.semester)continue;
     for(const sa of (c.slots||[]))for(const sb of (s.slots||[])){
       if(sa.day!==sb.day)continue;
       if(sa.start>sb.end||sb.start>sa.end)continue;
@@ -571,7 +679,7 @@ function updateConflictBadge(){
 /* ================== 模拟课程表 ================== */
 const ROW_H=46;
 function renderTimetable(){
-  const picks=selectedCourses();
+  const picks=selectedCourses().filter(c=>!state.semester.length||state.semester.includes(c.semester));
   const withSlots=picks.filter(c=>c.slots&&c.slots.length);
   const noSlots=picks.filter(c=>!c.slots||!c.slots.length);
   const cal=activeCal(),mode=state.ttMode;
@@ -586,7 +694,7 @@ function renderTimetable(){
     $('weekPrev').disabled=state.week<=1;
     $('weekNext').disabled=state.week>=cal.weeks;
     let cnt=0;withSlots.forEach(c=>(c.slots||[]).forEach(s=>{if(parseWeeks(s.w).has(state.week))cnt++}));
-    $('ttSub').textContent=`第 ${state.week} 周 · ${mdFmt(dts[0])} ~ ${mdFmt(dts[6])} · ${state.semester==='春季'?'春季':'秋季'}学期 · 本周 ${cnt} 个上课时段`;
+    $('ttSub').textContent=`第 ${state.week} 周 · ${dts?mdFmt(dts[0])+' ~ '+mdFmt(dts[6]):'按教学周显示，未指定单一学期校历'} · 本周 ${cnt} 个上课时段`;
   }else{
     $('ttSub').textContent='整学期总览：显示全部上课时段。切到「每周课表」可查看每周日期与实际课程';
   }
@@ -760,9 +868,17 @@ function toast(msg,isWarn){
 
 /* ================== 事件 ================== */
 $('search').addEventListener('input',e=>{state.search=e.target.value;state.page=1;render()});
-fields.forEach(f=>$(f).addEventListener('change',e=>{state[f]=e.target.value;state.page=1;render()}));
-document.querySelectorAll('#semesterSeg button').forEach(b=>b.onclick=()=>{state.semester=b.dataset.v;state.page=1;document.querySelectorAll('#semesterSeg button').forEach(x=>x.classList.toggle('active',x.dataset.v===state.semester));render()});
-$('clearFilters').onclick=()=>{Object.assign(state,{search:'',semester:'',college:'',first:'',second:'',category:'',campus:'',credits:'',exam:'',day:'',noConflict:false,page:1,onlySelected:false});$('search').value='';document.querySelectorAll('#semesterSeg button').forEach(b=>b.classList.toggle('active',b.dataset.v===''));render()};
+fields.forEach(f=>{
+  const el=$(f);
+  el.addEventListener('change',e=>{if(e.target.type!=='checkbox')return;state[f]=[...el.querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);state.page=1;render()});
+  el.querySelector('.multi-search').addEventListener('input',()=>filterOptions(el));
+  el.querySelector('.multi-clear').onclick=()=>{state[f]=[];state.page=1;el.querySelector('.multi-search').value='';el.open=false;render();el.querySelector('summary').focus()};
+  el.addEventListener('toggle',()=>{if(el.open)fields.filter(x=>x!==f).forEach(x=>$(x).open=false)});
+  el.addEventListener('keydown',e=>{if(e.key==='Escape'){el.open=false;el.querySelector('summary').focus()}});
+});
+document.addEventListener('click',e=>fields.forEach(f=>{if(!$(f).contains(e.target))$(f).open=false}));
+
+$('clearFilters').onclick=()=>{Object.assign(state,{search:'',semester:[],college:[],first:[],second:[],category:[],campus:[],credits:[],exam:[],day:[],noConflict:false,page:1,onlySelected:false});$('search').value='';fields.forEach(f=>{$(f).querySelector('.multi-search').value='';$(f).open=false});render()};
 $('pageSize').onchange=e=>{state.pageSize=Number(e.target.value);state.page=1;render()};
 $('prev').onclick=()=>{if(state.page>1){state.page--;render();document.querySelector('.table-card').scrollIntoView({behavior:'smooth',block:'start'})}};
 $('next').onclick=()=>{state.page++;render();document.querySelector('.table-card').scrollIntoView({behavior:'smooth',block:'start'})};
@@ -778,15 +894,16 @@ document.querySelector('#viewSeg').addEventListener('click',e=>{
   render();
   if(state.view==='timetable')$('timetableView').scrollIntoView({behavior:'smooth',block:'start'});
 });
-$('openTimetable').onclick=()=>{state.view='timetable';state.ttMode='overview';state.week=1;render();$('timetableView').scrollIntoView({behavior:'smooth',block:'start'})};
+
 $('openSelected').onclick=()=>openDrawer(true);
 $('closeDrawer').onclick=()=>openDrawer(false);$('mask').onclick=()=>{openDrawer(false);$('detailDrawer').classList.remove('open');$('changelogDrawer').classList.remove('open');$('datasetDrawer').classList.remove('open');$('mask').classList.remove('open')};$('openChangelog').onclick=()=>{$('changelogDrawer').classList.add('open');$('mask').classList.add('open')};$('closeChangelog').onclick=()=>{$('changelogDrawer').classList.remove('open');$('mask').classList.remove('open')};
 $('closeDetail').onclick=()=>{$('detailDrawer').classList.remove('open');$('mask').classList.remove('open')};
 $('openDataset').onclick=()=>{$('datasetDrawer').classList.add('open');$('mask').classList.add('open');renderDatasetUI()};
+$('importDataset').onclick=()=>{$('pickPresetFile').click()};
 $('closeDataset').onclick=()=>{$('datasetDrawer').classList.remove('open');$('mask').classList.remove('open')};
 $('presetList').addEventListener('change',e=>{const cb=e.target.closest('input[data-pid]');if(!cb)return;if(cb.checked)activePresets.add(cb.dataset.pid);else activePresets.delete(cb.dataset.pid);applyPresets();});
 $('pickPresetFile').onclick=()=>$('presetFileInput').click();
-$('presetFileInput').addEventListener('change',async e=>{const files=[...e.target.files];if(!files.length)return;const rowsList=[];for(const f of files){try{rowsList.push(JSON.parse(await f.text()));}catch(err){toast('无法解析 '+f.name,true)}}e.target.value='';if(rowsList.length){rebuildCourses(rowsList);$('datasetDrawer').classList.remove('open');$('mask').classList.remove('open');toast('已加载本地数据文件');}});
+$('presetFileInput').addEventListener('change',async e=>{const files=[...e.target.files];if(!files.length)return;const rowsList=[];for(const f of files){try{const rows=JSON.parse(await f.text());if(!Array.isArray(rows)||!rows.every(r=>r&&['code','name','semester','college','first','second','category','campus'].every(k=>typeof r[k]==='string')&&Number.isFinite(r.credits)&&Number.isFinite(r.hours)&&Array.isArray(r.slots)))throw new Error('格式不匹配');rowsList.push(rows);}catch(err){toast(f.name+' 格式不匹配，请参考数据集面板中的字段说明',true);e.target.value='';return}}e.target.value='';if(rowsList.length){rebuildCourses(rowsList);$('datasetDrawer').classList.remove('open');$('mask').classList.remove('open');$('dataBanner').hidden=true;$('datasetStatus').textContent='当前导入：'+files.map(f=>f.name).join('、');toast('已加载本地数据文件');}});
 $('bannerReload').onclick=()=>{location.reload()};
 $('ttBody').addEventListener('click',e=>{const b=e.target.closest('[data-detail]');if(b)openDetail(b.dataset.detail)});
 $('ttModeSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.ttMode=b.dataset.m;renderTimetable()});

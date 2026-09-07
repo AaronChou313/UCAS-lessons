@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """生成 presets/*.json + manifest.json（国科大 2026 秋四份预设）。
 
-- 京内：由 build_data.py 产出的 courses_merged.json（秋季段）转换，并入 syllabus 大纲链接
+- 京内：由 build_data.py 产出的 courses_merged.json（秋季开班与春季计划）转换，并入 syllabus 大纲链接
 - 京外/研究所/基地：由 datas/ 官网导出 xlsx 解析（列结构 = 京内 24 列格式）
 记录不带 id（页面加载时统一按序赋值），带 ds/key/syl 字段。
 """
@@ -17,10 +17,10 @@ MERGE_JSON = os.path.join(HERE, 'courses_merged.json')
 SYLLABI_JSON = os.path.join(ROOT, 'syllabi', 'course_syllabi.json')
 
 PRESETS = [
-    {'id': '2026秋-京内', 'name': '2026秋季 · 京内学院', 'file': '2026秋-京内.json', 'default': True},
-    {'id': '2026秋-京外', 'name': '2026秋季 · 京外学院', 'file': '2026秋-京外.json', 'default': False},
-    {'id': '2026秋-研究所', 'name': '2026秋季 · 研究所', 'file': '2026秋-研究所.json', 'default': False},
-    {'id': '2026秋-基地', 'name': '2026秋季 · 培养基地', 'file': '2026秋-基地.json', 'default': False},
+    {'id': '2026秋-京内', 'name': '京内学院 · 2026秋 / 2027春', 'file': '2026秋-京内.json', 'default': True},
+    {'id': '2026秋-京外', 'name': '京外学院 · 2026秋', 'file': '2026秋-京外.json', 'default': False},
+    {'id': '2026秋-研究所', 'name': '研究所 · 2026秋', 'file': '2026秋-研究所.json', 'default': False},
+    {'id': '2026秋-基地', 'name': '培养基地 · 2026秋', 'file': '2026秋-基地.json', 'default': False},
 ]
 DEFAULT_XLSX = {
     '2026秋-京外': 'datas/2026年秋季学期课表-京外学院.xlsx',
@@ -127,7 +127,7 @@ def parse_xlsx(path, ds, campus_fallback):
         records.append({
             'ds': ds, 'key': f'{ds}:{code}',
             'code': code, 'name': name, 'en': str(a[4]).strip() if a[4] else '',
-            'college': college, 'campus': campus, 'semester': '秋季',
+            'college': college, 'campus': campus, 'semester': '2026年秋季学期',
             'category': str(a[5]).strip(), 'discipline': disc, 'subjectCode': sc,
             'first': first, 'second': second,
             'level': str(a[6]).strip(),
@@ -144,7 +144,7 @@ def parse_xlsx(path, ds, campus_fallback):
 
 
 def main():
-    # ---- 京内：由 courses_merged.json 秋季段转换 + syl ----
+    # ---- 京内：由 courses_merged.json 秋季与春季转换 + syl ----
     merged = json.load(open(MERGE_JSON, encoding='utf-8'))
     syl_map = {}
     if os.path.exists(SYLLABI_JSON):
@@ -153,12 +153,11 @@ def main():
 
     jingnei = []
     for c in merged:
-        if c['semester'] != '秋季':
-            continue
         rec = {k: v for k, v in c.items() if k != 'id'}
+        rec['semester'] = '2026年秋季学期' if c['semester'] == '秋季' else '2027年春季学期'
         rec['ds'] = '2026秋-京内'
         rec['key'] = '2026秋-京内:' + c['code']
-        syl = syl_map.get(c['code'])
+        syl = syl_map.get(c['code']) if c['semester'] == '秋季' else None
         if syl:
             rec['syl'] = syl
         jingnei.append(rec)
