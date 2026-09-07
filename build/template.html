@@ -201,6 +201,17 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
 .filter-top{grid-template-columns:minmax(0,1fr) auto}.filters{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:760px){.filter-top{grid-template-columns:1fr}.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters>.field:first-child{grid-column:1 / -1}}
+
+.filter-details-head{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:8px}
+.filter-details-head .filter-hint{margin:0}
+.filter-reset{border:0;background:none;padding:8px 4px;color:#3152aa;cursor:pointer;font-size:12px;white-space:nowrap;min-height:36px}
+.filter-collapse{display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.filter-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.filter-tag{display:inline-flex;align-items:center;gap:8px;max-width:100%;border:1px solid #d4def4;border-radius:8px;padding:5px 9px;background:var(--blueSoft);color:#264688;font-size:12px;line-height:1.5;cursor:pointer;min-height:32px}
+.filter-tag span:first-child{overflow-wrap:anywhere;text-align:left}.filter-tag span:last-child{flex:none;color:#526a9c}
+.filter-tag:hover{background:#e0e9fc;border-color:#a9b8e7}
+.filter-panel.collapsed{padding-top:12px;padding-bottom:12px}
+@media(max-width:760px){.filter-top{grid-template-columns:minmax(0,1fr) auto;gap:8px}.filter-collapse{width:auto;padding:0 10px;font-size:12px;min-height:44px}.filter-details-head{align-items:flex-start;gap:8px}.filter-reset{min-height:44px}.filter-tag{min-height:36px}.filter-tags{gap:8px}}
 </style>
 </head>
 <body>
@@ -233,15 +244,17 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
   <div id="dataBanner" class="data-banner" hidden>⚠️ <b id="dataBannerMsg">数据加载失败</b> <span class="db-actions"><button id="bannerReload">重试</button></span></div>
 
-  <section class="filter-panel">
+  <section class="filter-panel" id="filterPanel">
     <div class="filter-top">
       <div class="search">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
         <input id="search" aria-label="搜索课程" placeholder="搜索课程名 / 编码 / 学院 / 学科 / 教师 / 教室……" autocomplete="off" />
       </div>
-      <button class="clear" id="clearFilters">清空筛选</button>
+      <button class="clear filter-collapse" id="toggleFilters" aria-expanded="true" aria-controls="filterDetails">收起筛选 <span aria-hidden="true">⌃</span></button>
     </div>
-    <p class="filter-hint">以下条件可多选：同项满足任一选项，不同项同时满足。</p>
+    <div class="filter-tags" id="filterTags" aria-label="当前筛选条件" hidden></div>
+    <div id="filterDetails">
+    <div class="filter-details-head"><p class="filter-hint">以下条件可多选：同项满足任一选项，不同项同时满足。</p><button class="filter-reset" id="clearFilters">清空筛选</button></div>
     <div class="filters">
       <div class="field"><label id="semesterLabel">开课学期</label><details class="multi-filter" id="semester"><summary aria-labelledby="semesterLabel semesterSummary"><span id="semesterSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索学期" placeholder="搜索学期"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
       <div class="field"><label id="collegeLabel">开课院系</label><details class="multi-filter" id="college"><summary aria-labelledby="collegeLabel collegeSummary"><span id="collegeSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
@@ -252,6 +265,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="field"><label id="creditsLabel">学分</label><details class="multi-filter" id="credits"><summary aria-labelledby="creditsLabel creditsSummary"><span id="creditsSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
       <div class="field"><label id="examLabel">考试方式</label><details class="multi-filter" id="exam"><summary aria-labelledby="examLabel examSummary"><span id="examSummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
       <div class="field"><label id="dayLabel">星期</label><details class="multi-filter" id="day"><summary aria-labelledby="dayLabel daySummary"><span id="daySummary"></span></summary><div class="multi-panel"><input class="multi-search" type="search" aria-label="搜索筛选选项" placeholder="搜索选项"><button type="button" class="multi-clear">取消本项筛选</button><div class="multi-options"></div></div></details></div>
+    </div>
     </div>
   </section>
 
@@ -353,7 +367,15 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   <div class="drawer-head"><div><h2>更新日志</h2><p>UCAS 选课浏览器 · 版本记录</p></div><button class="close" id="closeChangelog">×</button></div>
   <div class="changelog-list">
     <div class="cl-item">
-      <div class="cl-head"><span class="cl-ver latest">v3.1</span><span class="cl-date">2026-09-07</span></div>
+      <div class="cl-head"><span class="cl-ver latest">v3.2</span><span class="cl-date">2026-09-07</span></div>
+      <ul>
+        <li>筛选区支持展开与收起，收起后保留搜索栏，将已选条件显示为紧凑标签，为课程列表留出更多空间。</li>
+        <li>筛选标签支持逐项移除与一键清空，折叠时仍可搜索课程，已选筛选条件保持生效。</li>
+        <li>记住筛选区折叠状态，刷新后恢复；适配手机布局并支持键盘操作。</li>
+      </ul>
+    </div>
+    <div class="cl-item">
+      <div class="cl-head"><span class="cl-ver">v3.1</span><span class="cl-date">2026-09-07</span></div>
       <ul>
         <li>页面更名为「UCAS选课模拟器」，明确国科大 SEP 2026 年秋季完整开班数据与 2027 年春季计划数据的来源及覆盖范围。</li>
         <li>预设选择与数据导入前置，显示当前数据来源；精简课程统计，将已选课程与课表入口集中到课程操作区，优化手机布局。</li>
@@ -592,9 +614,22 @@ function sortedData(){
   });
   return arr;
 }
+let filtersCollapsed=localStorage.getItem('ucas-filters-collapsed')==='true';
+function renderFilterSummary(){
+  $('filterDetails').hidden=filtersCollapsed;
+  $('filterPanel').classList.toggle('collapsed',filtersCollapsed);
+  $('toggleFilters').setAttribute('aria-expanded',String(!filtersCollapsed));
+  $('toggleFilters').innerHTML=filtersCollapsed?'展开筛选 <span aria-hidden="true">⌄</span>':'收起筛选 <span aria-hidden="true">⌃</span>';
+  const tags=fields.flatMap(f=>state[f].map(value=>({field:f,value,label:$(f+'Label').textContent+'：'+(f==='day'?DAY_CN[Number(value)]:value)})));
+  if(state.onlySelected)tags.push({field:'onlySelected',value:'',label:'仅看已选'});
+  if(state.noConflict)tags.push({field:'noConflict',value:'',label:'不看冲突'});
+  $('filterTags').hidden=!filtersCollapsed||!tags.length;
+  $('filterTags').innerHTML=tags.map(t=>`<button class="filter-tag" data-field="${t.field}" data-value="${esc(t.value)}" title="移除${esc(t.label)}" aria-label="移除${esc(t.label)}"><span>${esc(t.label)}</span><span aria-hidden="true">×</span></button>`).join('')+(tags.length?'<button class="filter-reset" data-clear-filters>清空筛选</button>':'');
+}
 function render(){
   setHeroStats();
   fields.forEach(fillSelect);
+  renderFilterSummary();
   if(state.view==='timetable'){renderTimetable();$('listView').hidden=true;$('timetableView').hidden=false;}
   else{$('listView').hidden=false;$('timetableView').hidden=true;renderList();}
   document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('active',b.dataset.v===state.view));
@@ -878,6 +913,22 @@ fields.forEach(f=>{
 });
 document.addEventListener('click',e=>fields.forEach(f=>{if(!$(f).contains(e.target))$(f).open=false}));
 
+$('toggleFilters').onclick=()=>{
+  filtersCollapsed=!filtersCollapsed;
+  fields.forEach(f=>$(f).open=false);
+  localStorage.setItem('ucas-filters-collapsed',String(filtersCollapsed));
+  renderFilterSummary();
+};
+$('filterTags').onclick=e=>{
+  if(e.target.closest('[data-clear-filters]')){$('clearFilters').click();$('toggleFilters').focus();return}
+  const tag=e.target.closest('[data-field]');if(!tag)return;
+  const f=tag.dataset.field;
+  const index=[...$('filterTags').querySelectorAll('[data-field]')].indexOf(tag);
+  if(fields.includes(f))state[f]=state[f].filter(v=>v!==tag.dataset.value);else state[f]=false;
+  state.page=1;render();
+  const remaining=$('filterTags').querySelectorAll('[data-field]');
+  (remaining[Math.min(index,remaining.length-1)]||$('toggleFilters')).focus({preventScroll:true});
+};
 $('clearFilters').onclick=()=>{Object.assign(state,{search:'',semester:[],college:[],first:[],second:[],category:[],campus:[],credits:[],exam:[],day:[],noConflict:false,page:1,onlySelected:false});$('search').value='';fields.forEach(f=>{$(f).querySelector('.multi-search').value='';$(f).open=false});render()};
 $('pageSize').onchange=e=>{state.pageSize=Number(e.target.value);state.page=1;render()};
 $('prev').onclick=()=>{if(state.page>1){state.page--;render();document.querySelector('.table-card').scrollIntoView({behavior:'smooth',block:'start'})}};
